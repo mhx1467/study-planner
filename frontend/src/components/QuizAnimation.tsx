@@ -79,7 +79,7 @@ const QuizAnimation = () => {
       {/* Quiz Stage */}
       {stage === "quiz" && (
         <div
-          className={`absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/20 overflow-hidden transition-all duration-500 ease-out ${
+          className={`absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 border border-slate-300 overflow-hidden transition-all duration-500 ease-out ${
             zoomOut ? "scale-[0.25] opacity-0" : "scale-100 opacity-100"
           }`}
         >

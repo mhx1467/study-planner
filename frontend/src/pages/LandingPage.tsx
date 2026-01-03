@@ -144,7 +144,7 @@ export function LandingPage() {
             {/* Left content */}
             <div className="space-y-8">
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-slate-300">
                   <Zap className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium text-primary">Inteligentne planowanie nauki</span>
                 </div>
@@ -206,7 +206,7 @@ export function LandingPage() {
             {features.map((feature, idx) => {
               const Icon = feature.icon
               return (
-                <Card key={idx} className="border-primary/10 hover:border-primary/30 transition-colors">
+                <Card key={idx} className="border-slate-300 hover:border-slate-300 transition-colors">
                   <CardContent className="pt-8">
                     <div className="space-y-4">
                       <div className="flex items-center gap-4">
@@ -271,7 +271,7 @@ export function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {testimonials.map((testimonial, idx) => (
-              <Card key={idx} className="border-primary/10 hover:border-primary/30 transition-colors">
+              <Card key={idx} className="border-slate-300 hover:border-slate-300 transition-colors">
                 <CardContent className="pt-6">
                   <div className="space-y-4">
                     <div className="flex items-start justify-between">
@@ -305,7 +305,7 @@ export function LandingPage() {
             {faqs.map((faq, idx) => (
               <Card
                 key={idx}
-                className="border-primary/10 cursor-pointer hover:border-primary/30 transition-colors"
+                className="border-slate-300 cursor-pointer hover:border-slate-300 transition-colors"
                 onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
               >
                 <CardContent className="pt-6">
@@ -318,7 +318,7 @@ export function LandingPage() {
                       />
                     </div>
                     {openFaq === idx && (
-                      <p className="text-muted-foreground border-t border-primary/10 pt-4">{faq.answer}</p>
+                      <p className="text-muted-foreground border-t border-slate-300 pt-4">{faq.answer}</p>
                     )}
                   </div>
                 </CardContent>
@@ -329,7 +329,7 @@ export function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary/10 to-secondary/10 border-t border-b border-primary/20">
+      <section className="py-20 bg-gradient-to-r from-primary/10 to-secondary/10 border-t border-b border-slate-300">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
           <div className="space-y-4">
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
@@ -356,7 +356,7 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-muted/50 border-t border-primary/10 py-12">
+      <footer className="bg-muted/50 border-t border-slate-300 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <div className="space-y-4">
@@ -393,7 +393,7 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="border-t border-primary/10 pt-8 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
+          <div className="border-t border-slate-300 pt-8 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
             <p>© 2026 StudyPlanner. Wszystkie prawa zastrzeżone.</p>
             <div className="flex gap-6 mt-4 sm:mt-0">
               <a href="#twitter" className="hover:text-primary transition-colors">

@@ -1,0 +1,31 @@
+/* Popover animations */
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes popover-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.92) translateY(-8px);
+  }
+}
+
+/* Apply animations to popover content */
+.popover-content {
+  animation: popover-in 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.popover-content[data-state="closed"] {
+  animation: popover-out 150ms cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}

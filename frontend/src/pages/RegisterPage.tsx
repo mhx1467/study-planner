@@ -59,7 +59,7 @@ export function RegisterPage() {
       {/* Decorative gradient */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-orange-500/10 to-yellow-500/10 rounded-full blur-3xl -z-10"></div>
       
-      <Card className="w-full max-w-md border-primary/20">
+      <Card className="w-full max-w-md border-slate-300">
          <CardHeader className="space-y-2">
            <CardTitle className="text-center">Utwórz konto</CardTitle>
            <CardDescription className="text-center">

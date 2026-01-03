@@ -93,7 +93,8 @@ export function useCreateTask() {
       description?: string
       subject_id?: number
       priority: "low" | "medium" | "high"
-      due_date: string
+      deadline: string
+      estimated_minutes: number
     }) => {
       const response = await api.post("/tasks", data)
       return response.data
@@ -116,8 +117,9 @@ export function useUpdateTask() {
       description?: string
       subject_id?: number
       priority?: "low" | "medium" | "high"
-      due_date?: string
-      completed?: boolean
+      deadline?: string
+      estimated_minutes?: number
+      status?: string
     }) => {
       const response = await api.put(`/tasks/${id}`, data)
       return response.data
@@ -156,8 +158,22 @@ export function useSchedule(date?: Date) {
 export function useGenerateSchedule() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async () => {
-      const response = await api.post("/schedule/generate", {})
+    mutationFn: async (params: {
+      end_date?: string
+      short_break_minutes: number
+      medium_break_minutes: number
+      long_break_minutes: number
+      long_break_after_minutes: number
+    }) => {
+      const response = await api.post("/schedule/generate", {}, {
+        params: {
+          end_date: params.end_date,
+          short_break_minutes: params.short_break_minutes,
+          medium_break_minutes: params.medium_break_minutes,
+          long_break_minutes: params.long_break_minutes,
+          long_break_after_minutes: params.long_break_after_minutes,
+        }
+      })
       return response.data
     },
     onSuccess: () => {

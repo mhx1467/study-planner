@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.api.dependency import get_current_user
@@ -36,8 +36,8 @@ def create_schedule(schedule: ScheduleCreate, user=Depends(get_current_user), db
 
 @router.get("/", response_model=list[ScheduleOut])
 def list_schedules(
-    start_date: datetime = None,
-    end_date: datetime = None,
+    start_date: datetime | None = Query(None),
+    end_date: datetime | None = Query(None),
     user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -90,16 +90,36 @@ def delete_schedule(schedule_id: int, user=Depends(get_current_user), db: Sessio
     return {"ok": True}
 
 @router.post("/generate")
-def generate_schedule(user=Depends(get_current_user), db: Session = Depends(get_db)):
-    """Generate AI-powered schedule based on user's tasks"""
-    from app.services.ai_scheduler import generate_schedule_from_tasks
+def generate_schedule(
+    user=Depends(get_current_user), 
+    db: Session = Depends(get_db),
+    end_date: datetime | None = Query(None),
+    short_break_minutes: int = Query(5),
+    medium_break_minutes: int = Query(15),
+    long_break_minutes: int = Query(30),
+    long_break_after_minutes: int = Query(90),
+):
+    """Generate AI-powered schedule based on user's tasks with customizable break times"""
+    from app.services.scheduler import generate_schedule_from_tasks
     
     tasks = db.query(Task).join(Subject).filter(Subject.user_id == user.id).all()
     if not tasks:
         raise HTTPException(400, "No tasks found to schedule")
     
-    # Generate schedule entries
-    schedule_entries = generate_schedule_from_tasks(tasks, user.id)
+    # Delete existing schedules for this user to avoid duplicates
+    db.query(Schedule).filter(Schedule.user_id == user.id).delete()
+    db.commit()
+    
+    # Generate schedule entries with custom break times
+    schedule_entries = generate_schedule_from_tasks(
+        tasks, 
+        user.id,
+        end_date=end_date,
+        short_break_minutes=short_break_minutes,
+        medium_break_minutes=medium_break_minutes,
+        long_break_minutes=long_break_minutes,
+        long_break_after_minutes=long_break_after_minutes,
+    )
     
     # Save generated schedules
     for entry in schedule_entries:

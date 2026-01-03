@@ -11,7 +11,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
       default: "bg-primary text-primary-foreground",
       secondary: "bg-secondary text-secondary-foreground",
       destructive: "bg-destructive text-destructive-foreground",
-      outline: "border border-primary text-primary",
+      outline: "border border-slate-300 text-primary",
       success: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
     }
 
