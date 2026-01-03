@@ -25,17 +25,20 @@ api.interceptors.response.use(
   }
 )
 
-// Load token from localStorage and set it
-const token = localStorage.getItem("access_token")
-if (token) {
-  api.defaults.headers.common["Authorization"] = `Bearer ${token}`
-}
-
 class ApiClient {
   private client: AxiosInstance
 
   constructor() {
     this.client = api
+    // Load token from localStorage on initialization
+    this.loadToken()
+  }
+
+  private loadToken() {
+    const token = localStorage.getItem("access_token")
+    if (token) {
+      this.setAuthHeader(token)
+    }
   }
 
   // Auth endpoints

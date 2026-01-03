@@ -42,6 +42,20 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         }
     }
 
+@router.get("/me")
+def get_me(user: User = Depends(get_current_user)):
+    """Get current authenticated user"""
+    return {
+        "id": user.id,
+        "email": user.email,
+        "username": user.username
+    }
+
+@router.post("/logout")
+def logout(user: User = Depends(get_current_user)):
+    """Logout user - clears token on client side"""
+    return {"message": "Logged out successfully"}
+
 @router.post("/refresh")
 def refresh_token(user=Depends(get_current_user)):
     token = create_access_token({"sub": str(user.id), "role": user.role}, 60)
@@ -49,3 +63,4 @@ def refresh_token(user=Depends(get_current_user)):
         "access_token": token,
         "token_type": "bearer"
     }
+

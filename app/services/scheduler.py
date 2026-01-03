@@ -29,7 +29,6 @@ def generate_schedule_from_tasks(
     schedule_entries = []
     now = datetime.utcnow()
     
-    # Sort tasks by deadline, then by priority (high first)
     priority_order = {"high": 0, "urgent": 0, "medium": 1, "low": 2}
     sorted_tasks = sorted(
         tasks, 
@@ -39,34 +38,33 @@ def generate_schedule_from_tasks(
         )
     )
     
-    # Track the current scheduling position
+    # track the current scheduling position
     current_scheduling_time = now.replace(hour=9, minute=0, second=0, microsecond=0)
     
     for task_idx, task in enumerate(sorted_tasks):
         if not task.deadline or task.deadline <= now:
             continue
         
-        # Respect end_date if provided
         schedule_until = end_date if end_date else task.deadline
         
-        # Calculate study blocks needed (90-minute blocks)
+        # calculate study blocks needed
         total_minutes = task.estimated_minutes or 120
         block_minutes = 90
         num_blocks = math.ceil(total_minutes / block_minutes)
         minutes_scheduled = 0
         
-        # Create schedule entries for each block
+        # create schedule entries for each block
         for block_num in range(num_blocks):
             start_time = current_scheduling_time
             remaining_minutes = total_minutes - minutes_scheduled
             block_duration = min(block_minutes, remaining_minutes)
             end_time = start_time + timedelta(minutes=block_duration)
             
-            # Check if this block fits before the deadline/end_date
+            # check if this block fits before the deadline/end_date
             if start_time >= schedule_until:
                 break
             
-            # If end time exceeds deadline, truncate it
+            # if end time exceeds deadline, truncate it
             if end_time > schedule_until:
                 end_time = schedule_until
             
@@ -83,15 +81,15 @@ def generate_schedule_from_tasks(
             
             minutes_scheduled += block_duration
             
-            # Add break after this block
+            # add break after this block
             if block_num < num_blocks - 1:
-                # Within-task break: use medium break for long tasks
+                # within-task break: use medium break for long tasks
                 if block_duration >= long_break_after_minutes:
                     break_minutes = medium_break_minutes
                 else:
                     break_minutes = short_break_minutes
             elif task_idx < len(sorted_tasks) - 1:
-                # Between-task break: use long break
+                # between-task break: use long break
                 break_minutes = long_break_minutes
             else:
                 break_minutes = 0
@@ -100,7 +98,7 @@ def generate_schedule_from_tasks(
                 break_start = end_time
                 break_end = break_start + timedelta(minutes=break_minutes)
                 
-                # Only add break if it fits before schedule_until
+                # only add break if it fits before schedule_until
                 if break_start < schedule_until:
                     schedule_entries.append({
                         "title": "Przerwa",
@@ -116,14 +114,13 @@ def generate_schedule_from_tasks(
             else:
                 current_scheduling_time = end_time
             
-            # If next block would be after 18:00, move to next day at 9:00
+            # if next block would be after 18:00, move to next day at 9:00
             if current_scheduling_time.hour >= 18:
                 current_scheduling_time = (current_scheduling_time + timedelta(days=1)).replace(hour=9, minute=0, second=0, microsecond=0)
     
     return schedule_entries
 
 def get_priority_color(priority: str) -> str:
-    """Map task priority to display color"""
     color_map = {
         "high": "red",
         "medium": "yellow",

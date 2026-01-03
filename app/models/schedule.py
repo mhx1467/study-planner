@@ -18,7 +18,6 @@ class Schedule(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
     user = relationship("User", backref="schedules")
     task = relationship("Task", backref="schedule_entries")
     subject = relationship("Subject")

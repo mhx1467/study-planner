@@ -163,7 +163,7 @@ const QuizAnimation = () => {
          <div className="absolute inset-0 flex items-center justify-center animate-fade-in">
            <div className="text-center space-y-4">
              <div className="relative">
-               <div className="absolute inset-0 bg-orange-300 dark:bg-orange-600 rounded-full blur-3xl animate-pulse opacity-30"></div>
+               <div className="absolute inset-0 bg-amber-100 dark:bg-amber-400 rounded-full blur-3xl animate-pulse opacity-10"></div>
                <h1 className="relative text-5xl lg:text-6xl font-bold text-orange-600 dark:text-orange-400 animate-scale-in">
                  Zdaj egzaminy
                </h1>

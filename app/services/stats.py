@@ -11,21 +11,17 @@ def completion_percentage(tasks):
     return round(done / len(tasks) * 100, 2)
 
 def get_user_statistics(db: Session, user_id: int):
-    """Get comprehensive statistics for a user"""
     from app.models.subject import Subject
     
-    # Get all user tasks
     tasks = db.query(Task).join(Subject).filter(Subject.user_id == user_id).all()
     
     total_tasks = len(tasks)
     completed_tasks = len([t for t in tasks if t.status == TaskStatus.done])
     completion_rate = completion_percentage(tasks)
     
-    # Calculate total estimated study hours
     total_minutes = sum([t.estimated_minutes for t in tasks if t.estimated_minutes])
     total_hours = round(total_minutes / 60, 2)
     
-    # Get this week's tasks
     now = datetime.utcnow()
     week_start = now - timedelta(days=now.weekday())
     week_end = week_start + timedelta(days=7)
@@ -33,10 +29,8 @@ def get_user_statistics(db: Session, user_id: int):
     tasks_this_week = [t for t in tasks if t.deadline and week_start <= t.deadline <= week_end]
     completed_this_week = [t for t in tasks_this_week if t.status == TaskStatus.done]
     
-    # Get study streak (consecutive days with scheduled study)
     study_streak = calculate_study_streak(db, user_id)
     
-    # Get scheduled hours
     schedules = db.query(Schedule).filter(Schedule.user_id == user_id).all()
     total_scheduled_minutes = sum([(s.end_time - s.start_time).total_seconds() / 60 for s in schedules])
     total_scheduled_hours = round(total_scheduled_minutes / 60, 2)
@@ -78,10 +72,8 @@ def calculate_study_streak(db: Session, user_id: int) -> int:
     return streak
 
 def get_weekly_progress(db: Session, user_id: int):
-    """Get weekly progress data for charts"""
     from app.models.subject import Subject
     
-    # Get progress for each day of the week
     now = datetime.utcnow()
     week_start = now - timedelta(days=now.weekday())
     
@@ -93,7 +85,6 @@ def get_weekly_progress(db: Session, user_id: int):
         
         day_name = day_start.strftime("%A")
         
-        # Get tasks completed on this day
         tasks_completed = db.query(Task).join(Subject).filter(
             Subject.user_id == user_id,
             Task.status == TaskStatus.done,
@@ -101,7 +92,6 @@ def get_weekly_progress(db: Session, user_id: int):
             Task.deadline < day_end
         ).count()
         
-        # Get scheduled hours on this day
         scheduled = db.query(func.sum(
             func.cast(Schedule.end_time - Schedule.start_time, 'INTERVAL')
         )).filter(
