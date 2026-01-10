@@ -49,23 +49,41 @@ def get_user_statistics(db: Session, user_id: int):
     }
 
 def calculate_study_streak(db: Session, user_id: int) -> int:
-    """Calculate consecutive days with scheduled study"""
-    schedules = db.query(Schedule).filter(Schedule.user_id == user_id).order_by(Schedule.start_time.desc()).all()
+    """Calculate consecutive days with completed tasks (counting today as day 1)"""
+    from app.models.subject import Subject
     
-    if not schedules:
+    tasks = db.query(Task).join(Subject).filter(
+        Subject.user_id == user_id,
+        Task.status == TaskStatus.done
+    ).order_by(Task.completed_at.desc()).all()
+    
+    if not tasks:
         return 0
     
-    streak = 0
-    current_date = datetime.utcnow().date()
+    # Get unique dates with completed tasks, most recent first
+    completed_dates = []
+    seen_dates = set()
+    for task in tasks:
+        if task.completed_at:
+            task_date = task.completed_at.date()
+            if task_date not in seen_dates:
+                completed_dates.append(task_date)
+                seen_dates.add(task_date)
     
-    for schedule in schedules:
-        schedule_date = schedule.start_time.date()
-        
-        if schedule_date == current_date or schedule_date == current_date - timedelta(days=1):
-            if schedule_date == current_date - timedelta(days=1):
-                streak += 1
-                current_date = schedule_date
-            continue
+    if not completed_dates:
+        return 0
+    
+    # Check if the most recent completion is today or yesterday
+    today = datetime.utcnow().date()
+    if completed_dates[0] != today and completed_dates[0] != today - timedelta(days=1):
+        return 0
+    
+    # Count consecutive days from most recent backwards
+    streak = 1
+    for i in range(1, len(completed_dates)):
+        expected_date = completed_dates[0] - timedelta(days=i)
+        if completed_dates[i] == expected_date:
+            streak += 1
         else:
             break
     
@@ -75,7 +93,8 @@ def get_weekly_progress(db: Session, user_id: int):
     from app.models.subject import Subject
     
     now = datetime.utcnow()
-    week_start = now - timedelta(days=now.weekday())
+    # Use date arithmetic to get midnight on Monday
+    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
     
     daily_stats = []
     
@@ -85,27 +104,24 @@ def get_weekly_progress(db: Session, user_id: int):
         
         day_name = day_start.strftime("%A")
         
-        tasks_completed = db.query(Task).join(Subject).filter(
+        # Count tasks completed on this day based on completed_at timestamp
+        completed_tasks = db.query(Task).join(Subject).filter(
             Subject.user_id == user_id,
             Task.status == TaskStatus.done,
-            Task.deadline >= day_start,
-            Task.deadline < day_end
-        ).count()
+            Task.completed_at >= day_start,
+            Task.completed_at < day_end
+        ).all()
         
-        scheduled = db.query(func.sum(
-            func.cast(Schedule.end_time - Schedule.start_time, 'INTERVAL')
-        )).filter(
-            Schedule.user_id == user_id,
-            Schedule.start_time >= day_start,
-            Schedule.start_time < day_end
-        ).scalar() or 0
+        tasks_completed = len(completed_tasks)
         
-        scheduled_hours = scheduled.total_seconds() / 3600 if scheduled else 0
+        # Calculate actual hours from completed tasks
+        total_actual_minutes = sum([t.actual_minutes for t in completed_tasks if t.actual_minutes]) if completed_tasks else 0
+        actual_hours = total_actual_minutes / 60 if total_actual_minutes > 0 else 0.0
         
         daily_stats.append({
             "day": day_name,
             "tasks_completed": tasks_completed,
-            "hours_studied": round(scheduled_hours, 2)
+            "hours_studied": round(float(actual_hours), 2)
         })
     
     return daily_stats

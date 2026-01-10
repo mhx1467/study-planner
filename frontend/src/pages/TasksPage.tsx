@@ -2,7 +2,25 @@ import { useState, useRef, useEffect } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { AlertCircle, Plus, Edit2, Trash2, CheckCircle2, Circle, BookMarked } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import {
+  AlertCircle,
+  Plus,
+  Edit2,
+  Trash2,
+  CheckCircle2,
+  Circle,
+  BookMarked,
+  LayoutGrid,
+  List,
+} from "lucide-react"
 import { useCreateTask, useUpdateTask, useDeleteTask, useTasks, useSubjects } from "@/hooks/useApi"
 
 interface Subject {
@@ -12,42 +30,59 @@ interface Subject {
 }
 
 interface Task {
-   id: number
-   title: string
-   description: string
-   subject_id?: number | null
-   subject_name?: string
-   priority: "low" | "medium" | "high"
-   deadline?: string
-   due_date?: string
-   completed?: boolean
-   status?: string
-   estimated_minutes?: number
- }
+  id: number
+  title: string
+  description: string
+  subject_id?: number | null
+  subject_name?: string
+  priority: "low" | "medium" | "high"
+  deadline?: string
+  due_date?: string
+  completed?: boolean
+  status?: string
+  estimated_minutes?: number
+  actual_minutes?: number
+}
 
 export function TasksPage() {
-   const { data: tasks = [], isLoading: isLoadingTasks, refetch } = useTasks()
-   const { data: subjects = [] } = useSubjects()
-   const createTask = useCreateTask()
-   const updateTask = useUpdateTask()
-   const deleteTask = useDeleteTask()
-   const subjectDropdownRef = useRef<HTMLDivElement>(null)
+  const { data: tasks = [], isLoading: isLoadingTasks, refetch } = useTasks()
+  const { data: subjects = [] } = useSubjects()
+  const createTask = useCreateTask()
+  const updateTask = useUpdateTask()
+  const deleteTask = useDeleteTask()
+  const subjectDropdownRef = useRef<HTMLDivElement>(null)
 
-   const [error, setError] = useState("")
-   const [showForm, setShowForm] = useState(false)
-   const [editingId, setEditingId] = useState<number | null>(null)
-   const [filterPriority, setFilterPriority] = useState<"all" | "low" | "medium" | "high">("all")
-   const [subjectSearch, setSubjectSearch] = useState("")
-   const [showSubjectDropdown, setShowSubjectDropdown] = useState(false)
-   const [formData, setFormData] = useState({
-     title: "",
-     description: "",
-     subject_id: null as number | null,
-     subject_name: "",
-     priority: "medium" as "low" | "medium" | "high",
-     due_date: "",
-     estimated_minutes: 30,
-   })
+  // View mode state
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list")
+
+  // Error and form state
+  const [error, setError] = useState("")
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<number | null>(null)
+
+  // Filter and sorting state
+  const [filterPriority, setFilterPriority] = useState<"all" | "low" | "medium" | "high">("all")
+  const [subjectSearch, setSubjectSearch] = useState("")
+  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false)
+
+  // Completion dialog state
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false)
+  const [completingTaskId, setCompletingTaskId] = useState<number | null>(null)
+  const [actualMinutes, setActualMinutes] = useState("")
+
+  // Drag and drop state
+  const [draggedTaskId, setDraggedTaskId] = useState<number | null>(null)
+  const [draggedFromStatus, setDraggedFromStatus] = useState<string | null>(null)
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    subject_id: null as number | null,
+    subject_name: "",
+    priority: "medium" as "low" | "medium" | "high",
+    due_date: "",
+    estimated_minutes: 30,
+  })
 
    // Close dropdown when clicking outside
    useEffect(() => {
@@ -193,24 +228,43 @@ export function TasksPage() {
       setError("")
     }
 
-    const handleToggleComplete = async (task: Task) => {
-      try {
-        const dateStr = task.deadline || task.due_date || new Date().toISOString()
-        await updateTask.mutateAsync({
-          id: task.id,
-          title: task.title,
-          description: task.description,
-          subject_id: task.subject_id || undefined,
-          priority: task.priority,
-          deadline: dateStr.includes("T") ? dateStr : new Date(dateStr).toISOString(),
-          estimated_minutes: task.estimated_minutes || 30,
-          status: task.status === "done" ? "todo" : "done",
-        })
-        refetch()
-      } catch (err: any) {
-        setError(err.response?.data?.detail || "Błąd podczas aktualizacji zadania")
-      }
+  const handleToggleComplete = (task: Task) => {
+    if (task.status === "done") {
+      // If already done, just toggle back to todo
+      handleConfirmCompletion(task.id, 0, true)
+    } else {
+      // Open dialog to ask for actual minutes
+      setCompletingTaskId(task.id)
+      setActualMinutes("")
+      setShowCompletionDialog(true)
     }
+  }
+
+  const handleConfirmCompletion = async (taskId: number, minutes: number, toggleBack = false) => {
+    try {
+      const task = tasks.find((t: Task) => t.id === taskId)
+      if (!task) return
+
+      const dateStr = task.deadline || task.due_date || new Date().toISOString()
+      await updateTask.mutateAsync({
+        id: taskId,
+        title: task.title,
+        description: task.description,
+        subject_id: task.subject_id || undefined,
+        priority: task.priority,
+        deadline: dateStr.includes("T") ? dateStr : new Date(dateStr).toISOString(),
+        estimated_minutes: task.estimated_minutes || 30,
+        actual_minutes: toggleBack ? undefined : minutes,
+        status: toggleBack ? "todo" : "done",
+      })
+      refetch()
+      setShowCompletionDialog(false)
+      setCompletingTaskId(null)
+      setActualMinutes("")
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Błąd podczas aktualizacji zadania")
+    }
+  }
 
     const filteredTasks = filterPriority === "all"
      ? tasks
@@ -237,6 +291,78 @@ export function TasksPage() {
     return days
   }
 
+  // Get tasks by status for kanban view
+  const getTasksByStatus = (status: string) => {
+    return filteredTasks.filter((t: Task) => t.status === status)
+  }
+
+  // Kanban column data
+  const kanbanColumns = [
+    { status: "todo", title: "Do zrobienia", color: "bg-slate-50 border-slate-200" },
+    { status: "in_progress", title: "W trakcie", color: "bg-blue-50 border-blue-200" },
+    { status: "done", title: "Gotowe", color: "bg-green-50 border-green-200" },
+  ]
+
+  // Drag and drop handlers
+  const handleDragStart = (taskId: number, status: string) => {
+    setDraggedTaskId(taskId)
+    setDraggedFromStatus(status)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+  }
+
+  const handleDrop = async (e: React.DragEvent, newStatus: string) => {
+    e.preventDefault()
+    
+    if (draggedTaskId === null || draggedFromStatus === null) return
+    if (newStatus === draggedFromStatus) {
+      setDraggedTaskId(null)
+      setDraggedFromStatus(null)
+      return
+    }
+
+    const task = tasks.find((t: Task) => t.id === draggedTaskId)
+    if (!task) return
+
+    // If moving to done status, show completion dialog instead of directly updating
+    if (newStatus === "done" && draggedFromStatus !== "done") {
+      setCompletingTaskId(draggedTaskId)
+      setShowCompletionDialog(true)
+      setDraggedTaskId(null)
+      setDraggedFromStatus(null)
+      return
+    }
+
+    try {
+      const dateStr = task.deadline || task.due_date || new Date().toISOString()
+      await updateTask.mutateAsync({
+        id: draggedTaskId,
+        title: task.title,
+        description: task.description,
+        subject_id: task.subject_id || undefined,
+        priority: task.priority,
+        deadline: dateStr.includes("T") ? dateStr : new Date(dateStr).toISOString(),
+        estimated_minutes: task.estimated_minutes || 30,
+        actual_minutes: task.actual_minutes,
+        status: newStatus,
+      })
+      refetch()
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Błąd podczas przesuwania zadania")
+    }
+
+    setDraggedTaskId(null)
+    setDraggedFromStatus(null)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedTaskId(null)
+    setDraggedFromStatus(null)
+  }
+
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isLoadingTasks && (
@@ -246,23 +372,25 @@ export function TasksPage() {
             </CardContent>
           </Card>
         )}
-        
+
         <div className="mb-8 flex justify-between items-start">
-         <div>
-           <h1 className="text-4xl font-bold text-primary">
-             Zadania
-           </h1>
-           <p className="text-muted-foreground mt-2 text-lg">
-             Zarządzaj swoimi zadaniami edukacyjnymi
-           </p>
-         </div>
-         {!showForm && (
-           <Button onClick={() => setShowForm(true)} size="lg" className="gap-2">
-             <Plus className="h-4 w-4" />
-             Nowe zadanie
-           </Button>
-         )}
-       </div>
+          <div>
+            <h1 className="text-4xl font-bold text-primary">
+              Zadania
+            </h1>
+            <p className="text-muted-foreground mt-2 text-lg">
+              Zarządzaj swoimi zadaniami edukacyjnymi
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {!showForm && (
+              <Button onClick={() => setShowForm(true)} size="lg" className="gap-2">
+                <Plus className="h-4 w-4" />
+                Nowe zadanie
+              </Button>
+            )}
+          </div>
+        </div>
 
        {/* Form Card */}
        {showForm && (
@@ -442,66 +570,140 @@ export function TasksPage() {
                 </div>
              </form>
            </CardContent>
-         </Card>
-       )}
+          </Card>
+        )}
 
-       {/* Filter Buttons */}
-       {tasks.length > 0 && (
-         <div className="mb-6 flex gap-2 flex-wrap">
-           <Button
-             variant={filterPriority === "all" ? "default" : "outline"}
-             onClick={() => setFilterPriority("all")}
-             size="sm"
-           >
-             Wszystkie ({tasks.length})
-           </Button>
-           <Button
-             variant={filterPriority === "high" ? "default" : "outline"}
-             onClick={() => setFilterPriority("high")}
-             size="sm"
-           >
-             Wysokie (            {tasks.filter((t: Task) => t.priority === "high").length})
-           </Button>
-           <Button
-             variant={filterPriority === "medium" ? "default" : "outline"}
-             onClick={() => setFilterPriority("medium")}
-             size="sm"
-           >
-              Średnie ({tasks.filter((t: Task) => t.priority === "medium").length})
-           </Button>
-           <Button
-             variant={filterPriority === "low" ? "default" : "outline"}
-             onClick={() => setFilterPriority("low")}
-             size="sm"
-           >
-              Niskie ({tasks.filter((t: Task) => t.priority === "low").length})
-           </Button>
-         </div>
-       )}
+        {/* Task Completion Dialog */}
+        <Dialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Ukończyć zadanie</DialogTitle>
+              <DialogDescription>
+                Ile minut zajęło Ci wykonanie tego zadania?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label htmlFor="actual_minutes" className="text-sm font-medium text-primary">
+                  Rzeczywisty czas (minuty) *
+                </label>
+                <Input
+                  id="actual_minutes"
+                  type="number"
+                  min="0"
+                  max="480"
+                  step="5"
+                  placeholder="np. 45"
+                  value={actualMinutes}
+                  onChange={(e) => setActualMinutes(e.target.value)}
+                  disabled={updateTask.isPending}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowCompletionDialog(false)}
+                disabled={updateTask.isPending}
+              >
+                Anuluj
+              </Button>
+              <Button
+                onClick={() => {
+                  const minutes = parseInt(actualMinutes) || 0
+                  handleConfirmCompletion(completingTaskId || 0, minutes)
+                }}
+                disabled={updateTask.isPending || !actualMinutes}
+              >
+                {updateTask.isPending ? "Zapisywanie..." : "Potwierdź"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-       {/* Tasks List */}
-       {filteredTasks.length === 0 ? (
-         <Card className="text-center py-12 border-slate-300">
-           <CardContent>
-             <BookMarked className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-             <h3 className="text-lg font-medium text-foreground mb-2">
-               {tasks.length === 0 ? "Brak zadań" : "Brak zadań pasujących do filtra"}
-             </h3>
-             <p className="text-muted-foreground mb-6">
-               {tasks.length === 0
-                 ? "Utwórz pierwsze zadanie, aby zacząć"
-                 : "Spróbuj zmienić ustawienia filtra"}
-             </p>
-             {tasks.length === 0 && (
-               <Button onClick={() => setShowForm(true)}>
-                 <Plus className="h-4 w-4 mr-2" />
-                 Utwórz pierwsze zadanie
-               </Button>
-             )}
-           </CardContent>
-         </Card>
-       ) : (
-         <div className="space-y-3">
+        {/* View Toggle and Filter Buttons */}
+        {tasks.length > 0 && (
+          <div className="mb-6 space-y-4">
+            {/* View Toggle */}
+            <div className="flex gap-2">
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                onClick={() => setViewMode("list")}
+                size="sm"
+                className="gap-2"
+              >
+                <List className="h-4 w-4" />
+                Lista
+              </Button>
+              <Button
+                variant={viewMode === "kanban" ? "default" : "outline"}
+                onClick={() => setViewMode("kanban")}
+                size="sm"
+                className="gap-2"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Kanban
+              </Button>
+            </div>
+
+            {/* Filter Buttons */}
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant={filterPriority === "all" ? "default" : "outline"}
+                onClick={() => setFilterPriority("all")}
+                size="sm"
+              >
+                Wszystkie ({tasks.length})
+              </Button>
+              <Button
+                variant={filterPriority === "high" ? "default" : "outline"}
+                onClick={() => setFilterPriority("high")}
+                size="sm"
+              >
+                Wysokie ({tasks.filter((t: Task) => t.priority === "high").length})
+              </Button>
+              <Button
+                variant={filterPriority === "medium" ? "default" : "outline"}
+                onClick={() => setFilterPriority("medium")}
+                size="sm"
+              >
+                Średnie ({tasks.filter((t: Task) => t.priority === "medium").length})
+              </Button>
+              <Button
+                variant={filterPriority === "low" ? "default" : "outline"}
+                onClick={() => setFilterPriority("low")}
+                size="sm"
+              >
+                Niskie ({tasks.filter((t: Task) => t.priority === "low").length})
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {filteredTasks.length === 0 ? (
+          <Card className="text-center py-12 border-slate-300">
+            <CardContent>
+              <BookMarked className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+              <h3 className="text-lg font-medium text-foreground mb-2">
+                {tasks.length === 0 ? "Brak zadań" : "Brak zadań pasujących do filtra"}
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                {tasks.length === 0
+                  ? "Utwórz pierwsze zadanie, aby zacząć"
+                  : "Spróbuj zmienić ustawienia filtra"}
+              </p>
+              {tasks.length === 0 && (
+                <Button onClick={() => setShowForm(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Utwórz pierwsze zadanie
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ) : viewMode === "list" ? (
+          // LIST VIEW
+          <div className="space-y-3">
             {filteredTasks
               .sort((a: Task, b: Task) => {
                 const dateA = new Date(a.deadline || a.due_date || 0).getTime()
@@ -521,74 +723,195 @@ export function TasksPage() {
                           : "border-l-sky-blue"
                   }`}
                 >
-                 <CardContent className="pt-6 flex items-start justify-between gap-4">
-                   <div className="flex items-start gap-4 flex-1">
-                       <button
-                         onClick={() => handleToggleComplete(task)}
-                         className="mt-1 flex-shrink-0 transition-colors"
-                       >
-                         {task.status === "done" ? (
-                           <CheckCircle2 className="h-5 w-5 text-primary" />
-                         ) : (
-                           <Circle className="h-5 w-5 text-muted-foreground hover:text-primary" />
-                         )}
-                       </button>
-                        <div className="flex-1 min-w-0">
-                          <h3
-                            className={`font-medium text-foreground ${
-                              task.status === "done" ? "line-through text-muted-foreground" : ""
-                            }`}
-                          >
-                            {task.title}
-                          </h3>
-                          {task.description && (
-                            <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
-                              {task.description}
-                            </p>
+                  <CardContent className="pt-6 flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4 flex-1">
+                      <button
+                        onClick={() => handleToggleComplete(task)}
+                        className="mt-1 flex-shrink-0 transition-colors"
+                      >
+                        {task.status === "done" ? (
+                          <CheckCircle2 className="h-5 w-5 text-primary" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-muted-foreground hover:text-primary" />
+                        )}
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <h3
+                          className={`font-medium text-foreground ${
+                            task.status === "done" ? "line-through text-muted-foreground" : ""
+                          }`}
+                        >
+                          {task.title}
+                        </h3>
+                        {task.description && (
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                            {task.description}
+                          </p>
+                        )}
+                        <div className="flex gap-3 mt-2 flex-wrap">
+                          {task.subject_name && (
+                            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                              {task.subject_name}
+                            </span>
                           )}
-                          <div className="flex gap-3 mt-2 flex-wrap">
-                            {task.subject_name && (
-                              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                                {task.subject_name}
-                              </span>
-                            )}
-                            <span
-                              className={`text-xs px-2 py-1 rounded capitalize font-medium ${getPriorityColor(
-                                task.priority
-                              )}`}
-                            >
-                              {task.priority === "high" ? "Wysoki" : task.priority === "medium" ? "Średni" : "Niski"}
-                            </span>
+                          <span
+                            className={`text-xs px-2 py-1 rounded capitalize font-medium ${getPriorityColor(
+                              task.priority
+                            )}`}
+                          >
+                            {task.priority === "high" ? "Wysoki" : task.priority === "medium" ? "Średni" : "Niski"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Termin za {getDaysUntilDue(task.deadline || task.due_date || new Date().toISOString())} dni
+                          </span>
+                          {task.estimated_minutes && (
                             <span className="text-xs text-muted-foreground">
-                              Termin za {getDaysUntilDue(task.deadline || task.due_date || new Date().toISOString())} dni
+                              ~{task.estimated_minutes}min
                             </span>
-                          </div>
+                          )}
+                          {task.actual_minutes && (
+                            <span className="text-xs text-primary font-medium">
+                              {task.actual_minutes}min spędzonych
+                            </span>
+                          )}
                         </div>
                       </div>
+                    </div>
 
-                   <div className="flex gap-2 flex-shrink-0">
-                     <Button
-                       variant="ghost"
-                       size="icon"
-                       onClick={() => handleEdit(task)}
-                       className="h-8 w-8 hover:text-primary"
-                     >
-                       <Edit2 className="h-4 w-4" />
-                     </Button>
-                     <Button
-                       variant="ghost"
-                       size="icon"
-                       onClick={() => handleDelete(task.id)}
-                       className="h-8 w-8 hover:text-destructive"
-                     >
-                       <Trash2 className="h-4 w-4" />
-                     </Button>
-                   </div>
-                 </CardContent>
-               </Card>
-             ))}
-         </div>
-       )}
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(task)}
+                        className="h-8 w-8 hover:text-primary"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(task.id)}
+                        className="h-8 w-8 hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
+        ) : (
+          // KANBAN VIEW
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {kanbanColumns.map((column) => {
+              const columnTasks = getTasksByStatus(column.status)
+              return (
+                <div
+                  key={column.status}
+                  className={`border border-slate-200 rounded-lg p-4 ${column.color} min-h-96 ${
+                    draggedFromStatus === column.status ? "opacity-50" : ""
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, column.status)}
+                >
+                  <div className="mb-4 pb-4 border-b border-slate-300">
+                    <h2 className="font-semibold text-foreground">{column.title}</h2>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {columnTasks.length} {columnTasks.length === 1 ? "zadanie" : "zadań"}
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    {columnTasks.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-sm text-muted-foreground">Brak zadań</p>
+                      </div>
+                    ) : (
+                      columnTasks.map((task: Task) => (
+                        <Card
+                          key={task.id}
+                          draggable
+                          onDragStart={() => handleDragStart(task.id, task.status || "todo")}
+                          onDragEnd={handleDragEnd}
+                          className={`hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing ${
+                            draggedTaskId === task.id ? "opacity-50" : ""
+                          }`}
+                        >
+                          <CardContent className="pt-4 pb-4">
+                            <div className="flex items-start gap-2 mb-2">
+                              <button
+                                onClick={() => handleToggleComplete(task)}
+                                className="mt-0.5 flex-shrink-0 transition-colors"
+                              >
+                                {task.status === "done" ? (
+                                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                                ) : (
+                                  <Circle className="h-4 w-4 text-muted-foreground" />
+                                )}
+                              </button>
+                              <h4
+                                className={`font-medium text-sm flex-1 ${
+                                  task.status === "done" ? "line-through text-muted-foreground" : "text-foreground"
+                                }`}
+                              >
+                                {task.title}
+                              </h4>
+                            </div>
+                            {task.description && (
+                              <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                                {task.description}
+                              </p>
+                            )}
+                            <div className="flex gap-2 flex-wrap mb-3">
+                              <span
+                                className={`text-xs px-2 py-0.5 rounded font-medium ${getPriorityColor(
+                                  task.priority
+                                )}`}
+                              >
+                                {task.priority === "high" ? "Wysoki" : task.priority === "medium" ? "Średni" : "Niski"}
+                              </span>
+                              {task.subject_name && (
+                                <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
+                                  {task.subject_name}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-muted-foreground mb-3 space-y-1">
+                              <p>Termin: {getDaysUntilDue(task.deadline || task.due_date || new Date().toISOString())} dni</p>
+                              {task.estimated_minutes && (
+                                <p>Szacunek: ~{task.estimated_minutes}min</p>
+                              )}
+                              {task.actual_minutes && (
+                                <p className="text-primary font-medium">Spędzono: {task.actual_minutes}min</p>
+                              )}
+                            </div>
+                            <div className="flex gap-1 justify-end pt-2 border-t border-slate-200">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEdit(task)}
+                                className="h-6 w-6 hover:text-primary"
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(task.id)}
+                                className="h-6 w-6 hover:text-destructive"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
      </div>
    )
 }

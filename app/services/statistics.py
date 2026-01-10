@@ -4,8 +4,11 @@ from app.database.session import get_db
 from app.services.stats import (
     get_user_statistics,
     get_weekly_progress,
-    get_subject_breakdown
+    get_subject_breakdown,
+    completion_percentage
 )
+from app.models.subject import Subject
+from app.models.task import Task
 
 router = APIRouter(prefix="/statistics", tags=["Statistics"])
 
@@ -22,11 +25,6 @@ def get_subject_stats(user=Depends(get_current_user), db=Depends(get_db)):
     return get_subject_breakdown(db, user.id)
 
 @router.get("/completion")
-def completion():
-    from app.models.task import Task
-    from app.database.session import SessionLocal
-    from app.services.stats import completion_percentage
-    
-    db = SessionLocal()
-    tasks = db.query(Task).all()
+def completion(user=Depends(get_current_user), db=Depends(get_db)):
+    tasks = db.query(Task).join(Subject).filter(Subject.user_id == user.id).all()
     return {"completion_percent": completion_percentage(tasks)}

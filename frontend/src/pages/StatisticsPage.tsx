@@ -3,16 +3,27 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button"
 import { BarChart3, PieChart as PieChartIcon, TrendingUp, AlertCircle } from "lucide-react"
 import { useStatistics } from "@/hooks/useApi"
+import { Bar, Pie } from "react-chartjs-2"
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from "chart.js"
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 
 interface Statistics {
    totalTasks?: number
    completedTasks?: number
    completionRate?: number
    totalHours?: number
+   totalScheduledHours?: number
+   tasksThisWeek?: number
+   completedThisWeek?: number
+   studyStreak?: number
+   pendingTasks?: number
+   inProgressTasks?: number
    subjectStats?: Array<{
      name: string
      tasksCompleted?: number
-     hoursSpent?: number
+     totalTasks?: number
+     completionRate?: number
    }>
    weeklyProgress?: Array<{
      day: string
@@ -21,26 +32,49 @@ interface Statistics {
    }>
  }
 
- export function StatisticsPage() {
-   const [period, setPeriod] = useState<"week" | "month" | "all">("week")
-   const { data: stats = {}, isLoading, error } = useStatistics(period)
+   export function StatisticsPage() {
+     const [period, setPeriod] = useState<"week" | "month" | "all">("week")
+     const { data: stats, isLoading, error } = useStatistics(period)
 
-   const displayStats: Statistics = {
-     totalTasks: stats.totalTasks || 0,
-     completedTasks: stats.completedTasks || 0,
-     completionRate: stats.completionRate || 0,
-     totalHours: stats.totalHours || 0,
-     subjectStats: stats.subjectStats || [],
-     weeklyProgress: stats.weeklyProgress || [
-       { day: "Pon", tasksCompleted: 0, hoursSpent: 0 },
-       { day: "Wt", tasksCompleted: 0, hoursSpent: 0 },
-       { day: "Śr", tasksCompleted: 0, hoursSpent: 0 },
-       { day: "Czw", tasksCompleted: 0, hoursSpent: 0 },
-       { day: "Pt", tasksCompleted: 0, hoursSpent: 0 },
-       { day: "Sob", tasksCompleted: 0, hoursSpent: 0 },
-       { day: "Nd", tasksCompleted: 0, hoursSpent: 0 },
-     ],
-   }
+     const displayStats: Statistics = {
+       totalTasks: stats?.totalTasks || 0,
+       completedTasks: stats?.completedTasks || 0,
+       completionRate: stats?.completionRate || 0,
+       totalHours: stats?.totalHours || 0,
+       subjectStats: stats?.subjectStats || [],
+       weeklyProgress: stats?.weeklyProgress || [],
+       studyStreak: stats?.studyStreak || 0,
+     }
+
+     // Generate unique colors for subjects based on their name
+     const generateSubjectColors = (subjects: Array<{ name: string }>) => {
+       const colors: { [key: string]: string } = {}
+       const hueValues = [
+         0,    // Red
+         30,   // Orange-Red
+         60,   // Orange
+         90,   // Yellow-Orange
+         120,  // Green
+         150,  // Teal
+         180,  // Cyan
+         210,  // Blue
+         240,  // Purple
+         270,  // Magenta
+         300,  // Pink
+         330,  // Rose
+       ]
+       
+       subjects.forEach((subject, index) => {
+         const hue = hueValues[index % hueValues.length]
+         const saturation = 60 + (index % 3) * 8 // Varies between 60-76
+         const lightness = 60 + (Math.floor(index / hueValues.length) % 2) * 8 // Varies between 60-68 (lighter)
+         colors[subject.name] = `hsl(${hue}, ${saturation}%, ${lightness}%)`
+       })
+       
+       return colors
+     }
+
+     const subjectColors = generateSubjectColors(displayStats.subjectStats || [])
 
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -135,32 +169,79 @@ interface Statistics {
              </div>
              <CardDescription>Zadania ukończone w tym tygodniu</CardDescription>
            </CardHeader>
-           <CardContent>
-             <div className="text-center py-12">
-               <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-               <p className="text-muted-foreground text-sm">
-                 Wizualizacja wykresu będzie dostępna z danymi API
-               </p>
-             </div>
+            <CardContent>
+              {displayStats.weeklyProgress && displayStats.weeklyProgress.length > 0 ? (
+                  <>
+                   <div style={{ position: "relative", height: "300px", width: "100%", marginBottom: "1.5rem" }}>
+                     <Bar
+                       data={{
+                         labels: displayStats.weeklyProgress.map((d) => d.day.substring(0, 3)),
+                         datasets: [
+                           {
+                             label: "Ukończone zadania",
+                             data: displayStats.weeklyProgress.map((d) => d.tasksCompleted || 0),
+                             backgroundColor: "hsl(18, 100%, 50%)",
+                             borderColor: "hsl(18, 100%, 50%)",
+                             borderWidth: 1,
+                             borderRadius: 4,
+                           },
+                         ],
+                       }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            display: true,
+                            position: "top" as const,
+                          },
+                          tooltip: {
+                            enabled: true,
+                          },
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            ticks: {
+                              stepSize: 1,
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
 
-              {/* Placeholder bar chart */}
-              <div className="space-y-3 mt-6">
-                {displayStats.weeklyProgress?.map((day, idx) => (
-                 <div key={idx} className="space-y-1">
-                   <div className="flex justify-between text-sm">
-                     <span className="font-medium text-foreground">{day.day}</span>
-                     <span className="text-muted-foreground">{day.tasksCompleted} zadań</span>
-                   </div>
-                   <div className="h-2 bg-muted rounded-full overflow-hidden">
-                     <div
-                       className="h-full bg-gradient-to-r from-primary to-secondary"
-                       style={{ width: `${Math.random() * 100}%` }}
-                     />
-                   </div>
-                 </div>
-               ))}
-             </div>
-           </CardContent>
+                  {/* Weekly progress bars */}
+                  <div className="space-y-3">
+                    {displayStats.weeklyProgress.map((day, idx) => {
+                      const maxTasks = Math.max(...(displayStats.weeklyProgress?.map(d => d.tasksCompleted || 0) || [1]));
+                      const barWidth = maxTasks > 0 ? ((day.tasksCompleted || 0) / maxTasks) * 100 : 0;
+                      return (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex justify-between text-sm">
+                            <span className="font-medium text-foreground">{day.day}</span>
+                            <span className="text-muted-foreground">{day.tasksCompleted} zadań, {day.hoursSpent}h</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-primary to-secondary transition-all"
+                              style={{ width: `${barWidth}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <p className="text-muted-foreground text-sm">
+                    Brak danych. Utwórz i ukończ zadania, aby zobaczyć postęp tygodniowy
+                  </p>
+                </div>
+              )}
+            </CardContent>
          </Card>
 
          {/* Subject Distribution Chart */}
@@ -172,39 +253,70 @@ interface Statistics {
              </div>
              <CardDescription>Zadania ukończone wg przedmiotu</CardDescription>
            </CardHeader>
-            <CardContent>
-              {displayStats.subjectStats && displayStats.subjectStats.length === 0 ? (
-               <div className="text-center py-12">
-                 <PieChartIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                 <p className="text-muted-foreground text-sm">
-                   Brak danych. Ukoncz zadania, aby zobaczyć swój rozkład
-                 </p>
-               </div>
-              ) : (
-                <div className="space-y-4">
-                  {displayStats.subjectStats?.map((subject, idx) => (
-                   <div key={idx} className="space-y-1">
-                     <div className="flex justify-between text-sm">
-                       <span className="font-medium text-foreground">{subject.name}</span>
-                       <span className="text-muted-foreground">{subject.tasksCompleted} zadań</span>
-                     </div>
-                     <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary"
-                          style={{
-                            width: `${
-                              (subject.tasksCompleted || 0) /
-                                ((displayStats.subjectStats?.reduce((a, s) => a + (s.tasksCompleted || 0), 0)) || 1) *
-                              100
-                            }%`,
-                          }}
-                        />
-                     </div>
+             <CardContent>
+               {displayStats.subjectStats && displayStats.subjectStats.length > 0 ? (
+                 <>
+                   <div style={{ position: "relative", height: "300px", width: "100%", marginBottom: "1.5rem" }}>
+                      <Pie
+                         data={{
+                           labels: displayStats.subjectStats?.map((s) => s.name) || [],
+                           datasets: [
+                             {
+                               data: displayStats.subjectStats?.map((s) => s.tasksCompleted || 0) || [],
+                               backgroundColor: displayStats.subjectStats?.map((s) => subjectColors[s.name]) || [],
+                               borderColor: displayStats.subjectStats?.map((s) => subjectColors[s.name]) || [],
+                               borderWidth: 1,
+                             },
+                           ],
+                         }}
+                       options={{
+                         responsive: true,
+                         maintainAspectRatio: false,
+                         plugins: {
+                           legend: {
+                             position: "bottom" as const,
+                           },
+                           tooltip: {
+                             enabled: true,
+                           },
+                         },
+                       }}
+                     />
                    </div>
-                 ))}
-               </div>
-             )}
-           </CardContent>
+
+                    <div className="space-y-4">
+                      {displayStats.subjectStats?.map((subject, idx) => (
+                       <div key={idx} className="space-y-1">
+                         <div className="flex justify-between text-sm">
+                           <span className="font-medium text-foreground">{subject.name}</span>
+                           <span className="text-muted-foreground">{subject.tasksCompleted}/{subject.totalTasks} ({subject.completionRate}%)</span>
+                         </div>
+                         <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full transition-all"
+                              style={{
+                                backgroundColor: subjectColors[subject.name],
+                                width: `${
+                                  (subject.tasksCompleted || 0) /
+                                    ((displayStats.subjectStats?.reduce((a, s) => a + (s.totalTasks || 0), 0)) || 1) *
+                                  100
+                                }%`,
+                              }}
+                            />
+                         </div>
+                       </div>
+                     ))}
+                    </div>
+                 </>
+              ) : (
+                <div className="text-center py-12">
+                  <PieChartIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <p className="text-muted-foreground text-sm">
+                    Brak danych. Ukoncz zadania, aby zobaczyć swój rozkład
+                  </p>
+                </div>
+              )}
+            </CardContent>
          </Card>
        </div>
 
@@ -216,13 +328,13 @@ interface Statistics {
                <TrendingUp className="h-6 w-6 text-primary" />
              </div>
              <div className="flex-1">
-               <h3 className="font-semibold text-foreground text-lg">Bieżący ciąg</h3>
+               <h3 className="font-semibold text-foreground text-lg">Twój streak</h3>
                <p className="text-muted-foreground text-sm">Utrzymuj spójne nawyki nauki</p>
              </div>
-             <div className="text-right">
-               <div className="text-3xl font-bold text-primary">0</div>
-               <p className="text-sm text-muted-foreground">dni</p>
-             </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-primary">{stats?.studyStreak || 0}</div>
+                <p className="text-sm text-muted-foreground">dni</p>
+              </div>
            </div>
          </CardContent>
        </Card>

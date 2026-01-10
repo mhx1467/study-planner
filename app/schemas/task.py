@@ -28,14 +28,21 @@ class TaskUpdate(BaseModel):
     priority: Optional[TaskPriority] = None
     deadline: Optional[datetime] = None
     estimated_minutes: Optional[int] = Field(None, ge=15, le=480)
+    actual_minutes: Optional[int] = Field(None, ge=15, le=1440)
     status: Optional[TaskStatus] = None
 
 class TaskOut(TaskCreate):
     id: int
     status: TaskStatus
+    actual_minutes: Optional[int] = None
+    completed_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True
 
 class TaskWithSubject(TaskOut):
     subject_name: Optional[str] = None
+
+class TaskComplete(BaseModel):
+    actual_minutes: int = Field(..., ge=15, le=1440)
+

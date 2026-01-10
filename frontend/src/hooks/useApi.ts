@@ -101,6 +101,7 @@ export function useCreateTask() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] })
+      queryClient.invalidateQueries({ queryKey: ["statistics"] })
     },
   })
 }
@@ -119,6 +120,7 @@ export function useUpdateTask() {
       priority?: "low" | "medium" | "high"
       deadline?: string
       estimated_minutes?: number
+      actual_minutes?: number
       status?: string
     }) => {
       const response = await api.put(`/tasks/${id}`, data)
@@ -127,6 +129,8 @@ export function useUpdateTask() {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] })
       queryClient.invalidateQueries({ queryKey: ["tasks", id] })
+      // Invalidate all statistics queries regardless of period parameter
+      queryClient.invalidateQueries({ queryKey: ["statistics"] })
     },
   })
 }
@@ -139,6 +143,7 @@ export function useDeleteTask() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] })
+      queryClient.invalidateQueries({ queryKey: ["statistics"] })
     },
   })
 }
@@ -151,6 +156,28 @@ export function useSchedule(date?: Date) {
       const url = date ? `/schedule?date=${date.toISOString().split("T")[0]}` : "/schedule"
       const response = await api.get(url)
       return response.data
+    },
+  })
+}
+
+export function useCreateSchedule() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (data: {
+      title: string
+      description?: string
+      start_time: string
+      end_time: string
+      subject_id?: number
+      task_id?: number
+      color?: string
+    }) => {
+      const response = await api.post("/schedule", data)
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["schedule"] })
+      queryClient.invalidateQueries({ queryKey: ["statistics"] })
     },
   })
 }
@@ -178,17 +205,69 @@ export function useGenerateSchedule() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["schedule"] })
+      queryClient.invalidateQueries({ queryKey: ["statistics"] })
     },
   })
 }
 
 // Statistics Hooks
+interface StatisticsData {
+  totalTasks: number
+  completedTasks: number
+  completionRate: number
+  totalHours: number
+  totalScheduledHours: number
+  tasksThisWeek: number
+  completedThisWeek: number
+  studyStreak: number
+  pendingTasks: number
+  inProgressTasks: number
+  weeklyProgress: Array<{
+    day: string
+    tasksCompleted: number
+    hoursSpent: number
+  }>
+  subjectStats: Array<{
+    name: string
+    tasksCompleted: number
+    totalTasks: number
+    completionRate: number
+  }>
+}
+
 export function useStatistics(period: "week" | "month" | "all" = "week") {
-  return useQuery({
+  return useQuery<StatisticsData>({
     queryKey: ["statistics", period],
     queryFn: async () => {
-      const response = await api.get(`/statistics?period=${period}`)
-      return response.data
+      const [statsRes, weeklyRes, subjectsRes] = await Promise.all([
+        api.get("/statistics"),
+        api.get("/statistics/weekly"),
+        api.get("/statistics/subjects"),
+      ])
+      
+      return {
+        totalTasks: statsRes.data.total_tasks,
+        completedTasks: statsRes.data.completed_tasks,
+        completionRate: statsRes.data.completion_rate,
+        totalHours: statsRes.data.total_estimated_hours,
+        totalScheduledHours: statsRes.data.total_scheduled_hours,
+        tasksThisWeek: statsRes.data.tasks_this_week,
+        completedThisWeek: statsRes.data.completed_this_week,
+        studyStreak: statsRes.data.study_streak,
+        pendingTasks: statsRes.data.pending_tasks,
+        inProgressTasks: statsRes.data.in_progress_tasks,
+        weeklyProgress: weeklyRes.data.map((day: any) => ({
+          day: day.day,
+          tasksCompleted: day.tasks_completed,
+          hoursSpent: day.hours_studied,
+        })),
+        subjectStats: subjectsRes.data.map((subject: any) => ({
+          name: subject.subject_name,
+          tasksCompleted: subject.completed_tasks,
+          totalTasks: subject.total_tasks,
+          completionRate: subject.completion_rate,
+        })),
+      }
     },
   })
 }

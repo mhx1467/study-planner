@@ -12,7 +12,9 @@ interface Task {
   subject_name?: string
   priority: "low" | "medium" | "high"
   due_date: string
+  deadline?: string
   completed: boolean
+  status?: "todo" | "in_progress" | "done"
 }
 
 
@@ -20,15 +22,51 @@ export function DashboardPage() {
    const { user } = useAuth()
    const { data: subjects = [], isLoading: isLoadingSubjects } = useSubjects()
    const { data: tasks = [], isLoading: isLoadingTasks } = useTasks()
-   const { data: stats = {}, isLoading: isLoadingStats } = useStatistics("week")
+   const { data: stats, isLoading: isLoadingStats } = useStatistics("week")
 
-   const pendingTasks = tasks.filter((t: Task) => !t.completed).length
-   const completionRate = tasks.length > 0 ? Math.round((tasks.filter((t: Task) => t.completed).length / tasks.length) * 100) : 0
-   const weeklyHours = stats.totalHours || 0
+    const pendingTasks = tasks.filter((t: Task) => t.status !== "done").length
+    const completionRate = tasks.length > 0 ? Math.round((tasks.filter((t: Task) => t.status === "done").length / tasks.length) * 100) : 0
+    const weeklyHours = stats?.totalHours || 0
 
-   const isLoading = isLoadingSubjects || isLoadingTasks || isLoadingStats
+    const isLoading = isLoadingSubjects || isLoadingTasks || isLoadingStats
 
-   return (
+    const getDeadlineColor = (dueDate: string) => {
+      const today = new Date()
+      const due = new Date(dueDate)
+      const diffTime = due.getTime() - today.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24))
+      
+      if (diffDays < 0) {
+        return "bg-red-600 text-white" // Overdue
+      } else if (diffDays <= 1) {
+        return "bg-red-500 text-white" // Due today/tomorrow
+      } else if (diffDays <= 3) {
+        return "bg-orange-500 text-white" // 2-3 days
+      } else if (diffDays <= 7) {
+        return "bg-yellow-500 text-white" // 4-7 days
+      } else {
+        return "bg-green-500 text-white" // More than a week
+      }
+    }
+
+    const getDaysUntilDue = (dueDate: string) => {
+      const today = new Date()
+      const due = new Date(dueDate)
+      const diffTime = due.getTime() - today.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24))
+      
+      if (diffDays < 0) {
+        return `${Math.abs(diffDays)} dni spóźnione`
+      } else if (diffDays === 0) {
+        return "Dziś"
+      } else if (diffDays === 1) {
+        return "Jutro"
+      } else {
+        return `Za ${diffDays} dni`
+      }
+    }
+
+    return (
      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
        {isLoading && (
          <Card className="mb-8 border-slate-300">
@@ -93,25 +131,41 @@ export function DashboardPage() {
                  </Link>
                </div>
              ) : (
-               <div className="space-y-3">
-                 {tasks.slice(0, 5).map((task: Task) => (
-                   <div key={task.id} className="p-3 border border-slate-300 rounded-lg hover:bg-primary/5 transition-colors">
-                     <div className="flex items-start justify-between gap-4">
-                       <div className="flex-1 min-w-0">
-                         <h4 className={`font-medium text-foreground ${task.completed ? "line-through text-muted-foreground" : ""}`}>
-                           {task.title}
-                         </h4>
-                         {task.subject_name && (
-                           <p className="text-xs text-muted-foreground mt-1">{task.subject_name}</p>
-                         )}
-                       </div>
-                       <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded whitespace-nowrap">
-                         {task.priority === "high" ? "Wysoki" : task.priority === "medium" ? "Średni" : "Niski"}
-                       </span>
-                     </div>
-                   </div>
-                 ))}
-               </div>
+                <div className="space-y-3">
+                  {tasks.slice(0, 5).map((task: Task) => (
+                    <div key={task.id} className="p-3 border border-slate-300 rounded-lg hover:bg-primary/5 transition-colors">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h4 className={`font-medium text-foreground ${task.status === "done" ? "line-through text-muted-foreground" : ""}`}>
+                            {task.title}
+                          </h4>
+                          <div className="flex gap-2 items-center mt-2 flex-wrap">
+                            {task.subject_name && (
+                              <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded font-medium">
+                                {task.subject_name}
+                              </span>
+                            )}
+                            <span className={`text-xs px-2 py-1 rounded whitespace-nowrap font-medium ${getDeadlineColor(task.deadline || task.due_date)}`}>
+                              {getDaysUntilDue(task.deadline || task.due_date)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 items-center flex-shrink-0">
+                          <span className={`text-xs px-2 py-1 rounded whitespace-nowrap font-medium ${
+                            task.status === "done" ? "bg-green-100 text-green-700" :
+                            task.status === "in_progress" ? "bg-blue-100 text-blue-700" :
+                            "bg-gray-100 text-gray-700"
+                          }`}>
+                            {task.status === "done" ? "Ukończone" : task.status === "in_progress" ? "W trakcie" : "Do zrobienia"}
+                          </span>
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded whitespace-nowrap">
+                            {task.priority === "high" ? "Wysoki" : task.priority === "medium" ? "Średni" : "Niski"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
              )}
            </CardContent>
          </Card>
