@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
 
   backend:
-    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-study-planner}/backend:${IMAGE_TAG:-latest}
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-mhx1467/study-planner}/backend:${IMAGE_TAG:-latest}
     container_name: study_planner_api
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-study_planner}
@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-study-planner}/frontend:${IMAGE_TAG:-latest}
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-mhx1467/study-planner}/frontend:${IMAGE_TAG:-latest}
     container_name: study_planner_web
     ports:
       - "31321:31321"
