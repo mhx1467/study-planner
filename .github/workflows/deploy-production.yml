@@ -1,0 +1,220 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+      skip_build:
+        description: 'Skip Docker build and use latest images from registry'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_build || github.event_name == 'push' }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (backend)
+        id: meta_backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Extract metadata (frontend)
+        id: meta_frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.backend
+          push: true
+          tags: ${{ steps.meta_backend.outputs.tags }}
+          labels: ${{ steps.meta_backend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.frontend
+          push: true
+          tags: ${{ steps.meta_frontend.outputs.tags }}
+          labels: ${{ steps.meta_frontend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: always() && (success() || failure())
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Display deployment info
+        run: |
+          echo "Deployment Configuration"
+          echo "=========================="
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Skip Build: ${{ inputs.skip_build }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo ""
+          echo "Build Status: ${{ needs.build.result }}"
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOYER_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ vars.SSH_PORT }} -H ${{ vars.VM_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy to server
+        run: |
+          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@${{ vars.VM_IP }} << 'DEPLOY_EOF'
+          set -e
+          
+          # Navigate to project directory
+          cd ${{ vars.PROJECT_PATH }}
+          
+          # Pull latest code
+          git pull origin main
+          
+          # Load environment variables
+          if [ -f .env.production ]; then
+            export $(cat .env.production | grep -v '^#' | xargs)
+          fi
+          
+          # Set image variables for container registry
+          export REGISTRY="ghcr.io"
+          export IMAGE_NAME="${{ github.repository }}"
+          export IMAGE_TAG="latest"
+          
+          # Stop existing containers
+          docker compose -f docker-compose.prod.yml down || true
+          
+          # Pull latest images
+          docker compose -f docker-compose.prod.yml pull
+          
+          # Run migrations
+          docker compose -f docker-compose.prod.yml run --rm backend alembic upgrade head
+          
+          # Start services
+          docker compose -f docker-compose.prod.yml up -d
+          
+          # Wait for services to be healthy
+          sleep 10
+          
+          # Check health
+          if ! curl -f http://localhost:5000/docs > /dev/null 2>&1; then
+            echo "Backend health check failed"
+            docker compose -f docker-compose.prod.yml logs backend
+            exit 1
+          fi
+          
+          if ! curl -f http://localhost:31321/health > /dev/null 2>&1; then
+            echo "Frontend health check failed"
+            docker compose -f docker-compose.prod.yml logs frontend
+            exit 1
+          fi
+          
+          echo "Deployment successful"
+          DEPLOY_EOF
+
+      - name: Send deployment notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "Production deployment completed successfully"
+          else
+            echo "Production deployment failed"
+            exit 1
+          fi
+
+  rollback:
+    runs-on: ubuntu-latest
+    if: failure() && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
+    needs: deploy
+    steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOYER_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ vars.SSH_PORT }} -H ${{ vars.VM_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Rollback deployment
+        run: |
+          ssh -p ${{ vars.SSH_PORT }} ${{ vars.SSH_USER }}@${{ vars.VM_IP }} << 'ROLLBACK_EOF'
+          cd ${{ vars.PROJECT_PATH }}
+          
+          # Get previous git commit
+          PREVIOUS_COMMIT=$(git rev-parse HEAD~1)
+          
+          # Checkout previous version
+          git checkout $PREVIOUS_COMMIT
+          
+          # Restart with previous images
+          if [ -f .env.production ]; then
+            export $(cat .env.production | grep -v '^#' | xargs)
+          fi
+          
+          # Set image variables for container registry
+          export REGISTRY="ghcr.io"
+          export IMAGE_NAME="${{ github.repository }}"
+          export IMAGE_TAG="latest"
+          
+          docker compose -f docker-compose.prod.yml down
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml up -d
+          
+          echo "Rollback completed"
+          ROLLBACK_EOF

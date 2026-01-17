@@ -1,0 +1,559 @@
+import { useState, useRef, useEffect } from "react"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ToggleSwitch } from "@/components/ui/toggle-switch"
+import { AlertCircle, Calendar, Clock, Wand2 } from "lucide-react"
+import { format, startOfWeek, addDays, isToday, isSameDay, parseISO } from "date-fns"
+import { pl, enUS } from "date-fns/locale"
+import { useSchedule, useGenerateSchedule, useSubjects } from "@/hooks/useApi"
+import { GenerateScheduleDialog } from "@/components/GenerateScheduleDialog"
+import type { GenerateScheduleParams } from "@/components/GenerateScheduleDialog"
+import { useTranslation } from "@/hooks/useTranslation"
+import { usePreferences } from "@/contexts/PreferencesContext"
+
+interface ScheduleEvent {
+  id: number
+  task_id: number
+  title: string
+  subject_id: number
+  start_time: string
+  end_time: string
+  description: string
+  color?: string
+}
+
+export function SchedulePage() {
+     const [currentDate, setCurrentDate] = useState(new Date())
+     const [viewMode, setViewMode] = useState<"day" | "week">("week")
+     const [error, setError] = useState("")
+     const [showGenerateDialog, setShowGenerateDialog] = useState(false)
+      const [openPopoverId, setOpenPopoverId] = useState<number | string | null>(null)
+      const scrollContainerRef = useRef<HTMLDivElement>(null)
+      const { t } = useTranslation()
+      const { preferences, setScheduleHoursScheme } = usePreferences()
+      
+      // Get locale object based on language preference
+      const locale = preferences.language === 'en' ? enUS : pl
+      
+      const showAllHours = preferences.scheduleHoursScheme === 'all'
+     const handleToggleHours = (value: boolean) => {
+       setScheduleHoursScheme(value ? 'all' : 'business')
+     }
+     
+     const { data: events = [], isLoading, refetch } = useSchedule(currentDate)
+     const generateSchedule = useGenerateSchedule()
+     const { data: subjects = [] } = useSubjects()
+
+     // Constants for layout
+     const HOUR_HEIGHT = 120 // Reduced from 120 to 60 for more compact view
+     const START_HOUR = 6   // Start at 6 AM
+     const END_HOUR = 22    // End at 10 PM (22:00)
+     const VISIBLE_HOURS = showAllHours ? 24 : (END_HOUR - START_HOUR) // Show either all 24 hours or just business hours
+     const TOTAL_DAY_HEIGHT = VISIBLE_HOURS * HOUR_HEIGHT
+
+      // Scroll to current time on mount and when showAllHours changes
+      useEffect(() => {
+        if (scrollContainerRef.current && viewMode === "week") {
+          const now = new Date()
+          const currentHour = now.getHours()
+          
+          // Only auto-scroll if current hour is visible
+          if (showAllHours || (currentHour >= START_HOUR && currentHour < END_HOUR)) {
+            const hoursFromStart = showAllHours ? currentHour : (currentHour - START_HOUR)
+            const scrollTop = hoursFromStart * HOUR_HEIGHT - 150 // Scroll to show current time near top
+            scrollContainerRef.current.scrollTop = Math.max(0, scrollTop)
+          }
+        }
+      }, [viewMode, showAllHours, HOUR_HEIGHT])
+
+    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
+    const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
+
+    // Helper function to get subject name by ID
+    const getSubjectName = (subjectId: number) => {
+      return subjects.find((s: any) => s.id === subjectId)?.name || t("pages.no_subject")
+    }
+
+   // Helper function to extract date from ISO datetime string
+   const getDateFromISO = (isoString: string): Date => {
+     return parseISO(isoString)
+   }
+
+   // Helper function to format time from ISO datetime
+   const formatTimeFromISO = (isoString: string): string => {
+     return format(parseISO(isoString), "HH:mm")
+   }
+
+      const getDayEvents = (date: Date): ScheduleEvent[] => {
+        return events.filter((e: ScheduleEvent) => isSameDay(getDateFromISO(e.start_time), date))
+      }
+      const DURATION_BUCKETS = [0, 15, 30, 45, 60]
+      const BUCKET_HEIGHTS: { [key: number]: number } = {
+        0: 0,
+        15: HOUR_HEIGHT * (15 / 60),  
+        30: HOUR_HEIGHT * (30 / 60),  
+        45: HOUR_HEIGHT * (45 / 60),  
+        60: HOUR_HEIGHT,        
+      }
+        
+      // Helper function to bucket duration to nearest valid duration
+      // For durations > 60, returns array of buckets that sum to fit the duration
+      const bucketDuration = (durationMinutes: number): number[] => {
+        if (durationMinutes === 0) return [0]
+        
+        // If duration is <= 60, find the closest single bucket
+        if (durationMinutes <= 60) {
+          let closestBucket = DURATION_BUCKETS[0]
+          let minDistance = Math.abs(durationMinutes - closestBucket)
+          
+          for (const bucket of DURATION_BUCKETS) {
+            const distance = Math.abs(durationMinutes - bucket)
+            if (distance < minDistance) {
+              minDistance = distance
+              closestBucket = bucket
+            }
+          }
+          
+          return [closestBucket]
+        }
+        
+        // For durations > 60, stack the largest buckets that fit
+        const buckets: number[] = []
+        let remaining = durationMinutes
+        
+        // Start with largest bucket and work down
+        const sortedBuckets = [...DURATION_BUCKETS].reverse()
+        
+        while (remaining > 0) {
+          // Find the largest bucket that fits in remaining duration
+          let foundBucket = false
+          
+          for (const bucket of sortedBuckets) {
+            if (bucket <= remaining) {
+              buckets.push(bucket)
+              remaining -= bucket
+              foundBucket = true
+              break
+            }
+          }
+          
+          // Safety check: if no bucket found, use the closest remaining
+          if (!foundBucket) {
+            // Find closest bucket to remaining
+            let closestBucket = DURATION_BUCKETS[0]
+            let minDistance = Math.abs(remaining - closestBucket)
+            
+            for (const bucket of DURATION_BUCKETS) {
+              const distance = Math.abs(remaining - bucket)
+              if (distance < minDistance) {
+                minDistance = distance
+                closestBucket = bucket
+              }
+            }
+            
+            buckets.push(closestBucket)
+            break
+          }
+        }
+        
+        return buckets
+      }
+      
+       // Helper function to get total height for a bucketed duration array
+      const getHeightForDuration = (durationMinutes: number): number => {
+        const bucketedDurations = bucketDuration(durationMinutes)
+        return bucketedDurations.reduce((sum, bucket) => sum + (BUCKET_HEIGHTS[bucket] || BUCKET_HEIGHTS[60]), 0)
+      }
+      
+      // Helper function to calculate max day height in the week
+      // All days should be the same height
+      const getMaxDayHeight = (): number => {
+        // For now, return the fixed height - all days will have the same height
+        return TOTAL_DAY_HEIGHT
+      }
+
+    const handleGenerateSchedule = async (params: GenerateScheduleParams) => {
+     try {
+       setError("")
+       setShowGenerateDialog(false)
+       
+       // Convert end_date to ISO format if provided
+       const queryParams = new URLSearchParams()
+       if (params.end_date) {
+         queryParams.append("end_date", params.end_date)
+       }
+       queryParams.append("short_break_minutes", params.short_break_minutes.toString())
+       queryParams.append("medium_break_minutes", params.medium_break_minutes.toString())
+       queryParams.append("long_break_minutes", params.long_break_minutes.toString())
+       queryParams.append("long_break_after_minutes", params.long_break_after_minutes.toString())
+       
+       await generateSchedule.mutateAsync({
+         ...params,
+         end_date: params.end_date ? new Date(params.end_date).toISOString() : undefined,
+       })
+       // Refetch schedule after generation
+       setTimeout(() => refetch(), 1000)
+       } catch (err) {
+         setError((err as any).response?.data?.detail || t("pages.schedule_generation_error"))
+       }
+   }
+
+    return (
+       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {isLoading && (
+          <Card className="mb-8 border-slate-300">
+            <CardContent className="pt-6">
+              <p className="text-center text-muted-foreground">{t("pages.schedule.loading")}</p>
+            </CardContent>
+          </Card>
+        )}
+        
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-primary">
+            {t("pages.schedule.title")}
+          </h1>
+          <p className="text-muted-foreground mt-2 text-lg">
+            {t("pages.schedule.description")}
+          </p>
+        </div>
+
+       {error && (
+         <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex gap-3">
+           <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+           <p className="text-sm text-destructive">{error}</p>
+         </div>
+       )}
+
+       <Card className="mb-8 border-slate-300">
+         <CardContent className="pt-6">
+           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setCurrentDate(addDays(currentDate, -7))} size="sm">
+                  {t("pages.schedule.previous_week")}
+                </Button>
+                <Button variant="outline" onClick={() => setCurrentDate(new Date())} size="sm">
+                  {t("pages.schedule.today")}
+                </Button>
+                <Button variant="outline" onClick={() => setCurrentDate(addDays(currentDate, 7))} size="sm">
+                  {t("pages.schedule.next_week")}
+                </Button>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === "day" ? "default" : "outline"}
+                  onClick={() => setViewMode("day")}
+                  size="sm"
+                >
+                  {t("pages.schedule.day_view")}
+                </Button>
+                <Button
+                  variant={viewMode === "week" ? "default" : "outline"}
+                  onClick={() => setViewMode("week")}
+                  size="sm"
+                >
+                  {t("pages.schedule.week_view")}
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-2 text-foreground font-medium">
+                <Calendar className="h-4 w-4 text-primary" />
+                <span>
+                  {format(weekStart, "MMM d", { locale })} - {format(addDays(weekStart, 6), "MMM d, yyyy", { locale })}
+                </span>
+              </div>
+           </div>
+         </CardContent>
+       </Card>
+
+         {viewMode === "week" && (
+           <Card className="border-slate-300">
+             <CardContent className="pt-6 pb-4">
+                <ToggleSwitch
+                  checked={showAllHours}
+                  onCheckedChange={handleToggleHours}
+                  labelLeft={t("pages.schedule.business_hours")}
+                  labelRight={t("pages.schedule.show_all_hours")}
+                />
+             </CardContent>
+              <div className="flex overflow-hidden" style={{ height: `${TOTAL_DAY_HEIGHT + 100}px` }}>
+                {/* Fixed time column */}
+                <div className="w-16 bg-muted/50 border-slate-300 flex flex-col flex-shrink-0">
+                  {/* Header cell for time column */}
+                  <div className="border-b border-slate-300 p-3 flex items-center justify-center flex-shrink-0 h-[65px]">
+                    <span className="text-xs font-semibold text-foreground">{t("pages.schedule.hour")}</span>
+                  </div>
+                  {/* Time labels */}
+                  <div className="overflow-y-auto" style={{ height: `${TOTAL_DAY_HEIGHT}px` }}>
+                    {Array.from({ length: VISIBLE_HOURS }, (_, i) => {
+                      const hour = showAllHours ? i : (START_HOUR + i)
+                      return (
+                        <div
+                          key={i}
+                          className="border-b border-slate-300 flex items-center justify-end pr-2"
+                          style={{ height: `${HOUR_HEIGHT}px` }}
+                        >
+                          <span className="text-xs font-medium text-muted-foreground">
+                            {`${hour.toString().padStart(2, "0")}:00`}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                 {/* Scrollable area containing header and content */}
+                 <div className="flex-1 border-l border-slate-300 overflow-x-auto overflow-y-auto" ref={scrollContainerRef}>
+                   {/* Week header with day names - scrolls horizontally */}
+                   <div className="flex border-b border-slate-300 flex-shrink-0 bg-white sticky top-0 z-10 w-fit lg:w-full">
+                     {weekDays.map((day, idx) => (
+                       <div
+                         key={idx}
+                         className={`flex-1 p-3 text-center border-l border-slate-300 min-w-[150px] ${
+                           isToday(day) ? "bg-primary/5" : "bg-muted/30"
+                         }`}
+                        >
+                          <div className="font-semibold text-primary text-sm">
+                            {format(day, "EEE", { locale })}
+                          </div>
+                          <div className={`text-sm ${isToday(day) ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                            {format(day, "d MMM", { locale })}
+                          </div>
+                        </div>
+                     ))}
+                   </div>
+
+                   {/* Calendar grid with events */}
+                   <div className="relative flex min-w-min" style={{ height: `${getMaxDayHeight()}px` }}>
+                     {/* Hour grid lines spanning all columns */}
+                     {Array.from({ length: VISIBLE_HOURS }, (_, i) => (
+                       <div
+                         key={`gridline-${i}`}
+                         className="absolute w-full border-b border-slate-300 pointer-events-none"
+                         style={{
+                           top: `${i * HOUR_HEIGHT}px`,
+                           height: `${HOUR_HEIGHT}px`,
+                           left: 0,
+                           right: 0,
+                         }}
+                       />
+                     ))}
+
+                     {/* Day columns with events */}
+                  {weekDays.map((day, dayIdx) => (
+                    <div
+                      key={dayIdx}
+                      className="flex-1 border-l border-slate-300 relative min-w-[150px]"
+                    >
+
+                      {getDayEvents(day).map((event) => {
+                        const startDate = parseISO(event.start_time)
+                        const endDate = parseISO(event.end_time)
+                        const durationMinutes = Math.round((endDate.getTime() - startDate.getTime()) / 60000)
+
+                        const startHour = startDate.getHours()
+                        const startMinutes = startDate.getMinutes()
+                        const pixelsPerMinute = HOUR_HEIGHT / 60
+                        
+                        // Skip rendering if event is outside visible hours
+                        if (!showAllHours && (startHour < START_HOUR || startHour >= END_HOUR)) {
+                          return null
+                        }
+                        
+                        // Calculate top position based on current view mode
+                        // In all hours view: position from midnight
+                        // In business hours view: position from START_HOUR (6 AM)
+                        const hoursFromStart = showAllHours ? startHour : (startHour - START_HOUR)
+                        const topPixels = (hoursFromStart * HOUR_HEIGHT) + (startMinutes * pixelsPerMinute)
+                       
+                       // Use bucketed height instead of exact duration
+                       const blockHeight = getHeightForDuration(durationMinutes)
+
+                      // Check if any event starts exactly when this event ends
+                      const hasEventAfter = getDayEvents(day).some(
+                        (otherEvent) => parseISO(otherEvent.start_time).getTime() === endDate.getTime()
+                      )
+
+                      // Check if any event ends exactly when this event starts
+                      const hasEventBefore = getDayEvents(day).some(
+                        (otherEvent) => parseISO(otherEvent.end_time).getTime() === startDate.getTime()
+                      )
+
+                       let bgColor = "bg-blue-500"
+                       if (event.title === t("pages.break")) {
+                         bgColor = "bg-gray-400"
+                      } else if (event.color === "red") {
+                        bgColor = "bg-red-500"
+                      } else if (event.color === "yellow") {
+                        bgColor = "bg-yellow-500"
+                      }
+
+                      const margin = 2
+                      const marginTopValue = hasEventBefore ? margin : 0
+                      const marginBottomValue = hasEventAfter ? margin : 0
+                      const totalMargin = marginTopValue + marginBottomValue
+
+                       return (
+                         <Popover open={openPopoverId === event.id} onOpenChange={(isOpen) => setOpenPopoverId(isOpen ? event.id : null)}>
+                           <PopoverTrigger asChild>
+                             <div
+                               key={event.id}
+                               className={`absolute left-1 right-1 ${bgColor} text-white rounded p-2 text-xs cursor-pointer hover:shadow-lg transition-shadow overflow-hidden`}
+                               style={{
+                                 top: `${topPixels + marginTopValue}px`,
+                                 height: `${blockHeight - totalMargin}px`,
+                               }}
+                               onMouseEnter={() => setOpenPopoverId(event.id)}
+                               onMouseLeave={() => setOpenPopoverId(null)}
+                             >
+                               <div className="font-semibold truncate text-xs">{event.title}</div>
+                               <div className="text-xs opacity-90 truncate">
+                                 {getSubjectName(event.subject_id)}
+                               </div>
+                               <div className="text-xs opacity-75 mt-0.5">
+                                 {formatTimeFromISO(event.start_time)} - {formatTimeFromISO(event.end_time)}
+                               </div>
+                             </div>
+                           </PopoverTrigger>
+                           <PopoverContent className="w-80" side="right" align="start">
+                             <div className="space-y-3">
+                               <div>
+                                 <h4 className="font-semibold text-base text-primary">{event.title}</h4>
+                                 <p className="text-sm text-muted-foreground mt-1">{getSubjectName(event.subject_id)}</p>
+                               </div>
+                               <div className="space-y-2 border-t border-slate-300 pt-3">
+                                 <div className="flex items-center gap-2 text-sm">
+                                   <Clock className="h-4 w-4 text-primary" />
+                                   <span>
+                                     {formatTimeFromISO(event.start_time)} - {formatTimeFromISO(event.end_time)}
+                                   </span>
+                                 </div>
+                                 <div className="text-sm text-muted-foreground">
+                                   Czas: {durationMinutes} minut
+                                 </div>
+                               </div>
+                               {event.description && (
+                                 <div className="border-t border-slate-300 pt-3">
+                                   <p className="text-sm text-foreground">{event.description}</p>
+                                 </div>
+                               )}
+                             </div>
+                           </PopoverContent>
+                         </Popover>
+                       )
+                     })}
+                    </div>
+                  ))}
+                  </div>
+                </div>
+              </div>
+
+             {events.length === 0 && (
+               <CardContent className="text-center py-12">
+                 <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                 <h3 className="text-lg font-medium text-foreground mb-2">{t("pages.schedule.no_events")}</h3>
+                 <p className="text-muted-foreground">
+                   {t("pages.schedule.no_events_description")}
+                 </p>
+               </CardContent>
+             )}
+         </Card>
+       )}
+
+      {viewMode === "day" && (
+        <Card className="border-slate-300">
+           <CardHeader>
+             <CardTitle>{format(currentDate, "EEEE, MMMM d, yyyy", { locale })}</CardTitle>
+           </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+             {getDayEvents(currentDate).length === 0 ? (
+                   <div className="text-center py-12">
+                     <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                     <h3 className="text-lg font-medium text-foreground mb-2">{t("pages.schedule.no_events_today")}</h3>
+                     <p className="text-muted-foreground">
+                       {t("pages.schedule.no_events_today_description")}
+                     </p>
+                   </div>
+                 ) : (
+                    getDayEvents(currentDate)
+                      .sort((a: ScheduleEvent, b: ScheduleEvent) => a.start_time.localeCompare(b.start_time))
+                      .map((event: ScheduleEvent) => {
+                        const durationMinutes = Math.round(
+                          (new Date(event.end_time).getTime() - new Date(event.start_time).getTime()) / 60000
+                        )
+                         return (
+                           <div
+                             key={event.id}
+                             className="flex gap-4 p-4 bg-primary/5 rounded-lg border border-slate-300 hover:bg-primary/10 transition-colors"
+                           >
+                             <div className="flex flex-col gap-1 min-w-fit">
+                               <div className="text-primary font-bold text-lg">
+                                 {formatTimeFromISO(event.start_time)}
+                               </div>
+                               <div className="text-xs text-muted-foreground">
+                                 {formatTimeFromISO(event.end_time)}
+                               </div>
+                             </div>
+                             <div className="flex-1">
+                               <h3 className="font-semibold text-foreground">{event.title}</h3>
+                               <p className="text-sm text-muted-foreground mt-1">{getSubjectName(event.subject_id)}</p>
+                               <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                                 <Clock className="h-4 w-4" />
+                                 <span>
+                                   {durationMinutes} minut
+                                 </span>
+                               </div>
+                               {event.description && (
+                                 <p className="text-sm text-foreground mt-3 pt-3 border-t border-slate-300">
+                                   {event.description}
+                                 </p>
+                               )}
+                             </div>
+                           </div>
+                         )
+                      })
+                )}
+            </div>
+          </CardContent>
+         </Card>
+       )}
+
+       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+         <div className="flex items-center gap-0 bg-secondary/95 backdrop-blur-sm rounded-lg px-1 py-1 shadow-lg border border-border">
+           <Popover open={openPopoverId === 'toolbar-generate'} onOpenChange={(isOpen) => setOpenPopoverId(isOpen ? 'toolbar-generate' : null)}>
+             <PopoverTrigger asChild>
+               <Button
+                 size="sm"
+                 variant="ghost"
+                 className="h-9 px-3 hover:bg-secondary-foreground/10 text-secondary-foreground"
+                 onClick={() => setShowGenerateDialog(true)}
+                 onMouseEnter={() => setOpenPopoverId('toolbar-generate')}
+                 onMouseLeave={() => setOpenPopoverId(null)}
+                 disabled={generateSchedule.isPending}
+               >
+                 <Wand2 className="h-4 w-4" />
+               </Button>
+             </PopoverTrigger>
+              <PopoverContent className="w-72" side="top" align="center">
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm text-primary">{t("buttons.generate_schedule")}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {t("pages.schedule.generate_description")}
+                  </p>
+                </div>
+              </PopoverContent>
+           </Popover>
+         </div>
+       </div>
+
+       <GenerateScheduleDialog
+         isOpen={showGenerateDialog}
+         onClose={() => setShowGenerateDialog(false)}
+         onGenerate={handleGenerateSchedule}
+         isLoading={generateSchedule.isPending}
+       />
+      </div>
+    )
+}

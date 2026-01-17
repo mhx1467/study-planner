@@ -6,3 +6,7 @@ python-jose
 passlib[bcrypt]
 bcrypt<4.0
 python-multipart
+email-validator
+psycopg2-binary>=2.9.0
+python-dotenv
+alembic>=1.13.0

@@ -1,0 +1,682 @@
+{
+  "common": {
+    "app_name": "StudyPlanner",
+    "loading": "Ładowanie...",
+    "error": "Błąd",
+    "success": "Sukces",
+    "warning": "Ostrzeżenie",
+    "info": "Informacja",
+    "confirm": "Potwierdź",
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "close": "Zamknij",
+    "back": "Wróć",
+    "next": "Dalej",
+    "previous": "Poprzedni",
+    "home": "Strona główna",
+    "back_to_home": "Wróć na stronę główną",
+    "high": "Wysoki",
+    "high_priority": "Wysoki priorytet",
+    "medium": "Średni",
+    "medium_priority": "Średni priorytet",
+    "low": "Niski",
+    "low_priority": "Niski priorytet",
+    "days_overdue": "{count} dni spóźnione",
+    "in_days": "za {count} dni"
+  },
+  "buttons": {
+    "login": "Zaloguj się",
+    "logout": "Wyloguj się",
+    "register": "Zarejestruj się",
+    "sign_up": "Zarejestruj się",
+    "sign_in": "Zaloguj się",
+    "create_account": "Utwórz konto",
+    "create_subject": "Utwórz przedmiot",
+    "create_task": "Utwórz zadanie",
+    "create_first_subject": "Utwórz pierwszy przedmiot",
+    "create_first_task": "Utwórz pierwsze zadanie",
+    "update_subject": "Aktualizuj przedmiot",
+    "update_task": "Aktualizuj zadanie",
+    "delete_subject": "Usuń przedmiot",
+    "delete_task": "Usuń zadanie",
+    "generate_schedule": "Wygeneruj harmonogram",
+    "view_schedule": "Wyświetl harmonogram",
+    "view_statistics": "Wyświetl statystyki",
+    "add_task": "Dodaj zadanie",
+    "complete_task": "Ukończyć zadanie",
+    "try_now": "Zaznaj za darmo",
+    "cancel": "Anuluj",
+    "confirm": "Potwierdź",
+    "creating": "Tworzenie...",
+    "updating": "Aktualizowanie...",
+    "saving": "Zapisywanie...",
+    "new_subject": "Nowy przedmiot",
+    "new_task": "Nowe zadanie"
+  },
+  "navigation": {
+    "how_it_works": "Jak to działa",
+    "subjects": "Przedmioty",
+    "tasks": "Zadania",
+    "schedule": "Harmonogram",
+    "statistics": "Statystyki",
+    "dashboard": "Panel",
+    "settings": "Ustawienia",
+    "profile": "Profil",
+    "features": "Cechy",
+    "testimonials": "Opinie",
+    "logout": "Wyloguj się",
+    "start_free": "Zacznij za darmo",
+    "language": "Język"
+  },
+  "auth": {
+    "login": "Zaloguj się",
+    "login_description": "Zaloguj się na swoje konto, aby kontynuować",
+    "login_error": "Błąd logowania",
+    "login_failed": "Logowanie nie powiodło się",
+    "login_success_title": "Zalogowano",
+    "login_success_message": "Zalogowano pomyślnie",
+    "logging_in": "Logowanie...",
+    "register": "Zarejestruj się",
+    "register_description": "Zarejestruj się i zacznij korzystać z StudyPlanner",
+    "registration_error": "Błąd rejestracji",
+    "registration_failed": "Rejestracja nie powiodła się",
+    "create_account": "Utwórz konto",
+    "creating_account": "Tworzenie konta...",
+    "account_created_title": "Konto utworzone",
+    "account_created_message": "Twoje konto zostało pomyślnie założone",
+    "no_account": "Nie masz konta?",
+    "already_have_account": "Masz już konto?"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Witaj, {username}!",
+      "subtitle": "Oto podsumowanie Twojego postępu w nauce",
+      "pending_tasks": "Oczekujące zadania",
+      "completion_rate": "Stopień ukończenia",
+      "overdue": "{count} dni spóźnione",
+      "in_days": "za {count} dni",
+      "today": "Dziś",
+      "tomorrow": "Jutro",
+      "quick_actions": "Szybkie akcje",
+      "quick_actions_create_subject": "Utwórz przedmiot",
+      "quick_actions_add_task": "Dodaj zadanie",
+      "quick_actions_view_schedule": "Wyświetl harmonogram",
+      "quick_actions_view_statistics": "Wyświetl statystyki",
+      "no_tasks": "Brak zadań",
+      "no_tasks_description": "Nie masz żadnych zadań. Utwórz pierwsze zadanie, aby zacząć",
+      "completed": "Ukończone",
+      "in_progress": "W trakcie",
+      "todo": "Do zrobienia",
+      "metric_total_hours": "Godzin nauki"
+    },
+    "subjects": "Przedmioty",
+    "subjects_description": "Zarządzaj swoimi przedmiotami i tematami nauki",
+    "create_subject": "Utwórz nowy przedmiot",
+    "edit_subject": "Edytuj przedmiot",
+    "no_subjects": "Brak przedmiotów",
+    "no_subjects_description": "Utwórz swój pierwszy przedmiot, aby rozpocząć plan nauki",
+    "no_subjects_created": "Nie masz utworzonych przedmiotów",
+    "loading_subjects": "Ładowanie przedmiotów...",
+    "subject_added_title": "Przedmiot dodany",
+    "subject_added": "Przedmiot \"{name}\" został pomyślnie dodany",
+    "subject_updated_title": "Przedmiot zaktualizowany",
+    "subject_updated_message": "Przedmiot został pomyślnie edytowany",
+    "subject_deleted_title": "Przedmiot usunięty",
+    "subject_deleted_message": "Przedmiot został pomyślnie usunięty",
+    "subject_save_error": "Błąd podczas zapisywania przedmiotu",
+    "subject_delete_error": "Błąd podczas usuwania przedmiotu",
+    "created": "Utworzony",
+    "today": "Dziś",
+    "tasks": "Zadania",
+    "tasks_description": "Zarządzaj swoimi zadaniami edukacyjnymi",
+    "tasks_plural": "Zadania",
+    "tasks_unit": "zadań",
+    "task_singular": "zadanie",
+     "create_task": "Utwórz nowe zadanie",
+     "edit_task": "Edytuj zadanie",
+     "kanban_status_todo": "Do zrobienia",
+     "kanban_status_in_progress": "W trakcie",
+     "kanban_status_done": "Gotowe",
+     "no_tasks": "Brak zadań",
+    "no_tasks_description": "Utwórz pierwsze zadanie, aby zacząć",
+    "no_matching_tasks": "Brak zadań pasujących do filtra",
+    "no_matching_tasks_description": "Spróbuj zmienić ustawienia filtra",
+    "loading_tasks": "Ładowanie zadań...",
+    "task_added_title": "Zadanie dodane",
+    "task_added": "Zadanie \"{title}\" został pomyślnie dodane",
+    "task_updated_title": "Zadanie zaktualizowane",
+    "task_updated_message": "Zadanie zostało pomyślnie edytowane",
+    "task_deleted_title": "Zadanie usunięte",
+    "task_deleted_message": "Zadanie zostało pomyślnie usunięte",
+    "task_completed_title": "Zadanie ukończone!",
+    "task_completed": "Gratulacje! Ukończyłeś \"{title}\"",
+    "task_marked_done": "Zadanie oznaczone jako zrobione",
+    "task_back_to_todo": "Zadanie powrócił do listy do zrobienia",
+    "task_save_error": "Błąd podczas zapisywania zadania",
+    "task_delete_error": "Błąd podczas usuwania zadania",
+    "task_update_error": "Błąd podczas aktualizacji zadania",
+    "task_move_error": "Błąd podczas przenoszenia zadania",
+    "task_moved_to_todo": "Zadanie przeniesione na listę do zrobienia",
+    "task_moved_to_in_progress": "Zadanie przeniesione do \"W trakcie\"",
+    "status_changed": "Status zmieniony",
+    "status_changed_title": "Status zmieniony",
+    "all_tasks": "Wszystkie zadania",
+    "completed_tasks_metric": "Ukończone zadania",
+    "high_priority_tasks": "Zadania o wysokim priorytecie",
+    "medium_priority_tasks": "Zadania o średnim priorytecie",
+    "low_priority_tasks": "Zadania o niskim priorytecie",
+    "no_matching_subjects": "Brak pasujących przedmiotów",
+    "no_subject": "Brak przedmiotu",
+    "no_subject_data": "Brak danych dla tego przedmiotu",
+    "break": "Przerwa",
+     "schedule": {
+       "title": "Harmonogram",
+       "description": "Wyświetl i zarządzaj swoim harmonogramem nauki",
+       "loading": "Ładowanie harmonogramu...",
+       "previous_week": "← Poprzednio",
+       "today": "Dzisiaj",
+       "next_week": "Dalej →",
+       "day_view": "Dzień",
+       "week_view": "Tydzień",
+       "hour": "Godzina",
+       "duration": "Czas: {count} minut",
+       "no_events": "Brak zaplanowanych zdarzeń",
+       "no_events_description": "Wygeneruj harmonogram lub dodaj ręcznie zdarzenia, aby zacząć",
+       "no_events_today": "Brak zdarzeń dzisiaj",
+       "no_events_today_description": "Masz wolny dzień! Zaplanuj czas nauki",
+       "generate_tooltip": "Wygeneruj harmonogram",
+       "generate_description": "Automatycznie zaplanuj sesje nauki dla wybranych przedmiotów. System rozłoży zadania na dostępny czas z uwzględnieniem przerw.",
+       "show_all_hours": "Pokaż wszystkie godziny",
+       "business_hours": "Godziny robocze"
+     },
+    "deadline": "Termin",
+    "due_in": "Termin za (dni)",
+    "estimate": "Szacunek",
+    "spent": "Spędzony",
+    "note": "Wskazówka",
+    "selected": "Wybrany",
+    "days_unit": "dni",
+    "kanban_view": "Widok Kanban",
+    "list_view": "Widok listy",
+    "schedule_generation_error": "Błąd podczas generowania harmonogramu",
+    "statistics": "Statystyki",
+    "statistics_description": "Śledź postęp w nauce i wydajność",
+    "statistics_error": "Błąd podczas ładowania statystyk",
+    "statistics_info": "Statystyki są obliczane na podstawie ukończonych zadań",
+    "loading_statistics": "Ładowanie statystyk...",
+    "period_week": "Tydzień",
+    "period_month": "Miesiąc",
+    "period_all": "Wszystko",
+    "completed_tasks_chart": "Ukończone zadania",
+    "all_tasks_metric": "Wszystkie zadania",
+    "completion_percent_metric": "Procent ukończenia",
+     "weekly_progress_title": "Postęp tygodniowy",
+     "weekly_progress_description": "Zadania ukończone w tym tygodniu",
+     "subject_distribution_title": "Rozkład przedmiotów",
+     "subject_distribution_description": "Zadania ukończone wg przedmiotu",
+     "no_weekly_data": "Brak danych tygodniowych",
+     "your_streak": "Twój streak",
+     "streak_description": "Utrzymuj spójne nawyki nauki",
+     "study_hours_metric": "Godzin nauki",
+     "landing": {
+       "hero_title": "Plan nauki, który naprawdę działa",
+       "hero_subtitle": "StudyPlanner pomaga Ci organizeować zasoby, śledzić postęp i osiągać cele edukacyjne",
+       "features_title": "Zaawansowane funkcje",
+       "features_subtitle": "Wszystko czego potrzebujesz do efektywnej nauki",
+       "feature_smart_planning": {
+         "title": "Inteligentne planowanie",
+         "description": "AI generuje optymalne harmonogramy nauki"
+       },
+       "feature_organization": {
+         "title": "Organizacja",
+         "description": "Zarządzaj przedmiotami i zadaniami w jednym miejscu"
+       },
+       "feature_analytics": {
+         "title": "Analityka",
+         "description": "Śledzenie postępu w czasie rzeczywistym"
+       },
+       "feature_time_management": {
+         "title": "Zarządzanie czasem",
+         "description": "Optymalizuj swoją produktywność"
+       },
+       "how_it_works_title": "Jak to działa",
+       "how_it_works_subtitle": "Proste kroki do lepszej nauki",
+       "step_1_title": "Dodaj przedmioty",
+       "step_1_description": "Wpisz przedmioty, które studiujesz",
+       "step_2_title": "Utwórz zadania",
+       "step_2_description": "Dodaj zadania z szacunkowym czasem",
+       "step_3_title": "Wygeneruj harmonogram",
+       "step_3_description": "AI tworzy optymalny plan nauki",
+       "step_4_title": "Śledź postęp",
+       "step_4_description": "Obserwuj swoje osiągnięcia w czasie",
+       "testimonials_title": "Opinie studentów",
+       "testimonials_subtitle": "Słuchaj co mówią użytkownicy StudyPlannera",
+       "student_high_school": "Uczeń szkoły średniej",
+       "student_university": "Student uniwersytetu",
+       "school_university_warsaw": "Uniwersytet Warszawski",
+       "school_liceum_curie": "Liceum Imienia Marii Curie",
+       "university_jagiellonian": "Uniwersytet Jagielloński",
+       "school_warsaw_tech": "Politechnika Warszawska",
+       "testimonial_1": "StudyPlanner zmienił moją naukę. Nigdy nie byłem tak zorganizowany!",
+       "testimonial_2": "Świetnie używam harmonogram. Teraz mam czas na odpoczynek.",
+       "testimonial_3": "Analityka pomaga mi zobaczyć gdzie tracę czas. Polecam!",
+       "testimonial_4": "Najlepsze narzędzie do planowania nauki. Warto spróbować!",
+       "faq_title": "Pytania i odpowiedzi",
+       "faq_subtitle": "Odpowiedzi na najczęściej zadawane pytania",
+       "faq_q1": "Czy StudyPlanner jest darmowy?",
+       "faq_a1": "Tak! StudyPlanner jest całkowicie darmowy do użytku. Brak ukrytych opłat.",
+       "faq_q2": "Czy potrzebna jest karta kredytowa?",
+       "faq_a2": "Nie, nie potrzebujemy żadnych danych karty kredytowej. Zarejestruj się za darmo!",
+       "faq_q3": "Czy mogę używać na wielu urządzeniach?",
+       "faq_a3": "Tak, Twoje dane synchronizują się na wszystkich urządzeniach.",
+       "faq_q4": "Czy moje dane są bezpieczne?",
+       "faq_a4": "Oczywiście! Używamy szyfrowania SSL i bezpiecznych serwerów.",
+       "faq_q5": "Czy mogę wyeksportować moje dane?",
+       "faq_a5": "Tak, możesz pobrać wszystkie swoje dane w formacie CSV lub JSON.",
+       "faq_q6": "Jak mogę skontaktować się ze wsparciem?",
+       "faq_a6": "Napisz do nas na support@studyplanner.com lub użyj formularza kontaktowego.",
+       "cta_section_title": "Gotów do lepszej nauki?",
+       "cta_section_description": "Dołącz do tysięcy studentów, którzy już planują swoją naukę z StudyPlanner",
+       "cta_button": "Zaloguj się teraz",
+       "cta_secondary": "Czytaj więcej",
+       "free_access": "Darmowy dostęp",
+       "no_credit_card": "Bez karty kredytowej",
+       "already_have_account": "Masz już konto?",
+        "footer_tagline": "Narzędzie do planowania nauki dla studentów, którzy chcą osiągać więcej",
+        "footer_product": "Produkt",
+        "footer_features": "Funkcje",
+        "footer_opinions": "Opinie"
+      },
+      "settings": {
+        "description": "Zarządzaj preferencjami aplikacji",
+        "language": "Język",
+        "language_description": "Wybierz preferowany język interfejsu użytkownika",
+         "default_task_view": "Domyślny widok zadań",
+         "default_task_view_description": "Wybierz, czy zadania mają być wyświetlane domyślnie w widoku listy czy Kanban",
+         "default_schedule_hours": "Domyślny widok harmonogramu",
+         "default_schedule_hours_description": "Wybierz, czy harmonogram ma wyświetlać domyślnie tylko godziny robocze czy wszystkie 24 godziny"
+      }
+   },
+  "forms": {
+    "username": "Nazwa użytkownika",
+    "choose_username": "Wybierz nazwę użytkownika",
+    "email": "Email",
+    "enter_email": "Wpisz swój email",
+    "password": "Hasło",
+    "enter_password": "Wpisz swoje hasło",
+    "confirm_password": "Potwierdź hasło",
+    "confirm_password_placeholder": "Potwierdź swoje hasło",
+    "password_min_length": "Hasło musi mieć co najmniej 6 znaków",
+    "password_min_chars": "Minimum 6 znaków",
+    "passwords_dont_match": "Hasła muszą być identyczne",
+    "fill_all_fields": "Proszę wypełnić wszystkie pola",
+    "subject_name": "Nazwa przedmiotu",
+    "subject_name_required": "Nazwa przedmiotu jest wymagana",
+    "subject_placeholder": "Np. Matematyka, Historia",
+    "subject_description_placeholder": "Opisz przedmiot",
+    "subject": "Przedmiot",
+    "description": "Opis",
+    "task_title": "Tytuł zadania",
+    "task_title_required": "Tytuł zadania jest wymagany",
+    "task_title_placeholder": "Np. Zrobić pracę domową z matematyki",
+    "task_description_placeholder": "Opis zadania",
+    "due_date": "Termin",
+    "due_date_required": "Data terminu jest wymagana",
+    "priority": "Priorytet",
+    "estimated_time": "Szacunkowy czas",
+    "estimated_time_min": "Szacunkowy czas musi wynosić co najmniej 15 minut",
+    "actual_time": "Rzeczywisty czas",
+    "search_subject": "Szukaj przedmiotu",
+    "time_range": "Zakres czasowy"
+  },
+  "dialogs": {
+    "confirm_delete_title": "Potwierdź usunięcie",
+    "confirm_delete_description": "Ta operacja nie może być cofnięta.",
+    "confirm_delete_subject": "Czy na pewno chcesz usunąć ten przedmiot?",
+    "confirm_delete_task": "Czy na pewno chcesz usunąć to zadanie?",
+    "confirm": "Potwierdź",
+    "cancel": "Anuluj",
+    "complete_task": "Ukończyć zadanie",
+    "complete_task_description": "Ile minut zajęło Ci wykonanie tego zadania?",
+    "generate_schedule": "Wygeneruj harmonogram",
+    "generate_button": "Wygeneruj",
+    "generating": "Generowanie...",
+    "break_settings_label": "Ustawienia przerw",
+    "short_break_label": "Krótka przerwa (minuty)",
+    "short_break_help": "Przerwa między blokami nauki",
+    "medium_break_label": "Średnia przerwa (minuty)",
+    "medium_break_help": "Przerwa między różnymi zadaniami",
+    "long_break_label": "Długa przerwa (minuty)",
+    "long_break_help": "Przerwa po dłuższych sesji nauki",
+    "end_date_label": "Data końcowa (opcjonalnie)",
+    "end_date_help": "Jeśli nie ustawisz, harmonogram będzie generowany do ostatecznego terminu",
+    "threshold_label": "Próg długiej przerwy (minuty)",
+    "threshold_help": "Jeśli blok nauki przekroczy ten czas, dodaj przerwę"
+  },
+  "toasts": {
+    "success": {
+      "title": "Sukces",
+      "login": {
+        "title": "Zalogowano",
+        "description": "Zalogowano pomyślnie."
+      },
+      "login_welcome": {
+        "title": "Zalogowano pomyślnie",
+        "description": "Witaj w Study Planner!"
+      },
+      "register": {
+        "title": "Rejestracja zakończona",
+        "description": "Twoje konto zostało utworzone. Możesz się teraz zalogować."
+      },
+      "subject_created": {
+        "title": "Przedmiot dodany",
+        "description": "Nowy przedmiot został pomyślnie dodany."
+      },
+      "subject_updated": {
+        "title": "Przedmiot zaktualizowany",
+        "description": "Zmiany w przedmiocie zostały zapisane."
+      },
+      "subject_deleted": {
+        "title": "Przedmiot usunięty",
+        "description": "Przedmiot został pomyślnie usunięty."
+      },
+      "task_created": {
+        "title": "Zadanie dodane",
+        "description": "Nowe zadanie zostało pomyślnie dodane."
+      },
+      "task_updated": {
+        "title": "Zadanie zaktualizowane",
+        "description": "Zmiany w zadaniu zostały zapisane."
+      },
+      "task_deleted": {
+        "title": "Zadanie usunięte",
+        "description": "Zadanie zostało pomyślnie usunięte."
+      },
+      "task_completed": {
+        "title": "Zadanie ukończone!",
+        "description": "Gratulacje za ukończenie zadania!"
+      },
+      "status_changed": {
+        "title": "Status zmieniony",
+        "description": "Status zadania został pomyślnie zmieniony."
+      },
+      "schedule_created": {
+        "title": "Harmonogram dodany",
+        "description": "Nowy wpis w harmonogramie został dodany."
+      },
+      "schedule_updated": {
+        "title": "Harmonogram zaktualizowany",
+        "description": "Zmiany w harmonogramie zostały zapisane."
+      },
+      "schedule_deleted": {
+        "title": "Harmonogram usunięty",
+        "description": "Wpis w harmonogramie został usunięty."
+      },
+      "data_saved": {
+        "title": "Dane zapisane",
+        "description": "Wszystkie zmiany zostały zapisane."
+      },
+      "data_exported": {
+        "title": "Dane wyeksportowane",
+        "description": "Dane zostały pomyślnie wyeksportowane."
+      },
+      "password_changed": {
+        "title": "Hasło zmienione",
+        "description": "Twoje hasło zostało zmienione."
+      },
+      "logout": {
+        "title": "Wylogowano",
+        "description": "Zostałeś wylogowany z aplikacji."
+      }
+    },
+    "error": {
+      "title": "Błąd",
+      "login_failed": {
+        "title": "Logowanie nie powiodło się",
+        "description": "Sprawdź swój email i hasło."
+      },
+      "invalid_credentials": {
+        "title": "Nieprawidłowe dane",
+        "description": "Email lub hasło jest nieprawidłowe."
+      },
+      "user_not_found": {
+        "title": "Użytkownik nie znaleziony",
+        "description": "Użytkownik z tym emailem nie istnieje."
+      },
+      "email_taken": {
+        "title": "Email już w użyciu",
+        "description": "Ten email jest już powiązany z innym kontem."
+      },
+      "username_taken": {
+        "title": "Nazwa użytkownika zajęta",
+        "description": "Wybierz inną nazwę użytkownika."
+      },
+      "register_failed": {
+        "title": "Rejestracja nie powiodła się",
+        "description": "Sprawdź dane i spróbuj ponownie."
+      },
+      "subject_creation_failed": {
+        "title": "Dodanie przedmiotu nie powiodło się",
+        "description": "Coś poszło nie tak. Spróbuj ponownie."
+      },
+      "subject_update_failed": {
+        "title": "Aktualizacja przedmiotu nie powiodła się",
+        "description": "Nie udało się zaktualizować przedmiotu."
+      },
+      "subject_deletion_failed": {
+        "title": "Usunięcie przedmiotu nie powiodło się",
+        "description": "Nie udało się usunąć przedmiotu."
+      },
+      "task_creation_failed": {
+        "title": "Dodanie zadania nie powiodło się",
+        "description": "Coś poszło nie tak. Spróbuj ponownie."
+      },
+      "task_update_failed": {
+        "title": "Aktualizacja zadania nie powiodła się",
+        "description": "Nie udało się zaktualizować zadania."
+      },
+      "task_deletion_failed": {
+        "title": "Usunięcie zadania nie powiodło się",
+        "description": "Nie udało się usunąć zadania."
+      },
+      "schedule_creation_failed": {
+        "title": "Dodanie wpisu nie powiodło się",
+        "description": "Coś poszło nie tak. Spróbuj ponownie."
+      },
+      "schedule_update_failed": {
+        "title": "Aktualizacja wpisu nie powiodła się",
+        "description": "Nie udało się zaktualizować wpisu."
+      },
+      "schedule_deletion_failed": {
+        "title": "Usunięcie wpisu nie powiodło się",
+        "description": "Nie udało się usunąć wpisu."
+      },
+      "network_error": {
+        "title": "Błąd sieci",
+        "description": "Sprawdź połączenie internetowe i spróbuj ponownie."
+      },
+      "server_error": {
+        "title": "Błąd serwera",
+        "description": "Serwer nie odpowiada. Spróbuj ponownie później."
+      },
+      "unauthorized": {
+        "title": "Brak autoryzacji",
+        "description": "Nie masz uprawnień do tej operacji."
+      },
+      "not_found": {
+        "title": "Nie znaleziono",
+        "description": "Poszukiwany element nie istnieje."
+      },
+      "validation_error": {
+        "title": "Błąd walidacji",
+        "description": "Sprawdź poprawność wprowadzonych danych."
+      },
+      "required_field": {
+        "title": "Pole wymagane",
+        "description": "Wypełnij wszystkie wymagane pola."
+      },
+      "invalid_email": {
+        "title": "Nieprawidłowy email",
+        "description": "Wprowadź prawidłowy adres email."
+      },
+      "password_too_short": {
+        "title": "Hasło za krótkie",
+        "description": "Hasło musi mieć co najmniej 6 znaków."
+      },
+      "field_errors": {
+        "email": "Nieprawidłowy adres email",
+        "username": "Nazwa użytkownika musi mieć od 3 do 50 znaków",
+        "password": "Hasło musi mieć co najmniej 8 znaków",
+        "title": "Tytuł jest wymagany i musi mieć od 1 do 255 znaków",
+        "name": "Nazwa jest wymagana i musi mieć od 1 do 255 znaków",
+        "description": "Opis nie może być dłuższy niż 2000 znaków",
+        "deadline": "Data terminu jest wymagana",
+        "estimated_minutes": "Szacunkowy czas musi być między 15 a 480 minut",
+        "actual_minutes": "Rzeczywisty czas musi być między 15 a 1440 minut",
+        "subject_id": "Przedmiot jest wymagany",
+        "priority": "Priorytet musi być: niski, średni, wysoki lub pilny",
+        "status": "Status musi być: do zrobienia, w trakcie lub gotowe"
+      },
+      "field_validation": {
+        "email_already_registered": "Ten email jest już zarejestrowany",
+        "email_taken": "Ten email jest już powiązany z innym kontem",
+        "username_already_taken": "Ta nazwa użytkownika jest już zajęta",
+        "username_taken": "Nazwa użytkownika jest już zajęta",
+        "invalid_credentials": "Email lub hasło jest nieprawidłowe",
+        "password_min_length": "Hasło musi mieć co najmniej 8 znaków",
+        "username_min_length": "Nazwa użytkownika musi mieć co najmniej 3 znaki",
+        "title_required": "Tytuł jest wymagany",
+        "title_too_long": "Tytuł nie może być dłuższy niż 255 znaków",
+        "name_required": "Nazwa jest wymagana",
+        "name_too_long": "Nazwa nie może być dłuższa niż 255 znaków",
+        "description_too_long": "Opis nie może być dłuższy niż 2000 znaków",
+        "description_subject_too_long": "Opis przedmiotu nie może być dłuższy niż 1000 znaków",
+        "deadline_required": "Data terminu jest wymagana",
+        "estimated_minutes_required": "Szacunkowy czas jest wymagany",
+        "estimated_minutes_min": "Szacunkowy czas musi wynosić co najmniej 15 minut",
+        "estimated_minutes_max": "Szacunkowy czas nie może przekraczać 480 minut",
+        "actual_minutes_min": "Rzeczywisty czas musi wynosić co najmniej 15 minut",
+        "actual_minutes_max": "Rzeczywisty czas nie może przekraczać 1440 minut"
+      },
+      "unknown_error": {
+        "title": "Coś poszło nie tak",
+        "description": "Nieznany błąd. Spróbuj ponownie."
+      }
+    },
+    "warning": {
+      "title": "Ostrzeżenie",
+      "unsaved_changes": {
+        "title": "Niezapisane zmiany",
+        "description": "Masz niezapisane zmiany. Czy chcesz je zapisać?"
+      },
+      "confirm_delete": {
+        "title": "Potwierdź usunięcie",
+        "description": "Ta operacja nie może być cofnięta."
+      },
+      "session_expiring": {
+        "title": "Sesja wygasa",
+        "description": "Twoja sesja wygasa za kilka minut. Zaloguj się ponownie."
+      },
+      "low_storage": {
+        "title": "Mało dostępnej pamięci",
+        "description": "Wyczyść swoje dane lub spróbuj na innym urządzeniu."
+      },
+      "approaching_deadline": {
+        "title": "Zbliżający się termin",
+        "description": "Przypominamy, że zadanie będzie niedługo do wykonania."
+      },
+      "no_scheduled_tasks": {
+        "title": "Brak zaplanowanych zadań",
+        "description": "Nie masz żadnych zaplanowanych zadań na dzisiaj."
+      },
+      "high_workload": {
+        "title": "Duża ilość pracy",
+        "description": "Masz wiele zadań. Rozważ rozłożenie ich na więcej dni."
+      }
+    },
+    "info": {
+      "title": "Informacja",
+      "welcome": {
+        "title": "Witaj!",
+        "description": "Jesteś w aplikacji Study Planner."
+      },
+      "loading_data": {
+        "title": "Wczytywanie danych",
+        "description": "Proszę czekać..."
+      },
+      "processing": {
+        "title": "Przetwarzanie",
+        "description": "Proszę czekać na zakończenie operacji."
+      },
+      "no_data": {
+        "title": "Brak danych",
+        "description": "Nie ma nic do wyświetlenia."
+      },
+      "empty_list": {
+        "title": "Lista jest pusta",
+        "description": "Utwórz nowy element, aby zacząć."
+      },
+      "filter_applied": {
+        "title": "Filtr zastosowany",
+        "description": "Wyniki są filtrowane."
+      },
+      "sort_applied": {
+        "title": "Sortowanie zastosowane",
+        "description": "Elementy zostały posortowane."
+      },
+      "search_results": {
+        "title": "Wyniki wyszukiwania",
+        "description": "Znaleziono {count} wynik(ów)."
+      }
+    }
+  },
+  "schedule_generation": {
+    "short_break_error": "Krótka przerwa musi być między 1 a 60 minut",
+    "medium_break_error": "Średnia przerwa musi być między 1 a 60 minut",
+    "long_break_error": "Długa przerwa musi być między 1 a 120 minut",
+    "threshold_error": "Próg długiej przerwy musi być między 15 a 480 minut"
+  },
+  "quiz_demo": {
+    "question_label": "Pytanie",
+    "question_1": "Jaka jest stolica Anglii?",
+    "question_2": "Która planeta jest najbliżej Słońca?",
+    "question_3": "Kto napisał 'Romeo i Julia'?",
+    "question_4": "Jaki jest wzór na pole koła?",
+    "q1_opt1": "Londyn",
+    "q1_opt2": "Berlin",
+    "q1_opt3": "Paryż",
+    "q1_opt4": "Madryt",
+    "q2_opt1": "Merkury",
+    "q2_opt2": "Wenus",
+    "q2_opt3": "Ziemia",
+    "q2_opt4": "Mars",
+    "q3_opt1": "William Shakespeare",
+    "q3_opt2": "Jane Austen",
+    "q3_opt3": "Charles Dickens",
+    "q3_opt4": "Mark Twain",
+    "q4_opt1": "πr²",
+    "q4_opt2": "2πr",
+    "q4_opt3": "πr",
+    "q4_opt4": "r²",
+    "success_title": "Świetnie się uczysz!",
+    "success_subtitle": "Ćwicz regularnie i zobacz realne postępy"
+  },
+  "api_errors": {
+    "network_error": "Błąd połączenia sieciowego",
+    "authorization_error": "Błąd autoryzacji",
+    "validation_error": "Błąd walidacji",
+    "server_error": "Błąd serwera",
+    "not_found_error": "Błąd - zasób nie znaleziony",
+    "generic_error": "Błąd",
+    "auth_required": "Błąd autoryzacji. Zaloguj się ponownie.",
+    "access_denied": "Brak dostępu do tego zasobu.",
+    "invalid_data": "Nieprawidłowe dane. Sprawdź formularz.",
+    "resource_not_found": "Zasób nie znaleziony.",
+    "service_unavailable": "Serwer jest czasowo niedostępny. Spróbuj później.",
+    "generic_server_error": "Błąd serwera. Spróbuj później.",
+    "connection_error": "Błąd połączenia sieciowego. Sprawdź swoją sieć.",
+    "unknown_error": "Coś poszło nie tak. Spróbuj ponownie."
+  }
+}
