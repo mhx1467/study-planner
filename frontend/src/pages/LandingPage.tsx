@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import QuizAnimation from "@/components/QuizAnimation"
+import { useTranslation } from "@/hooks/useTranslation"
 import {
   BookOpen,
   Calendar,
@@ -16,29 +17,30 @@ import { useState } from "react"
 
 export function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const { t } = useTranslation()
 
   const features = [
     {
-      title: "Inteligentne planowanie nauki",
-      description: "Stwórz harmonogram dostosowany do Twojego tempa nauki, priorytetów i dostępnego czasu.",
+      titleKey: "pages.landing.feature_smart_planning.title",
+      descriptionKey: "pages.landing.feature_smart_planning.description",
       icon: Calendar,
       color: "text-primary",
     },
     {
-      title: "Organizacja przedmiotów",
-      description: "Zarządzaj wszystkimi przedmiotami w jednym miejscu i automatycznie śledź postępy w nauce.",
+      titleKey: "pages.landing.feature_organization.title",
+      descriptionKey: "pages.landing.feature_organization.description",
       icon: BookOpen,
       color: "text-secondary",
     },
     {
-      title: "Analiza postępów",
-      description: "Analizuj swoje nawyki nauki dzięki czytelnym statystykom i wskaźnikom efektywności.",
+      titleKey: "pages.landing.feature_analytics.title",
+      descriptionKey: "pages.landing.feature_analytics.description",
       icon: BarChart3,
       color: "text-primary",
     },
     {
-      title: "Zarządzanie czasem",
-      description: "Nie przegap żadnego terminu dzięki inteligentnym przypomnieniom i zaplanowanym zadaniom.",
+      titleKey: "pages.landing.feature_time_management.title",
+      descriptionKey: "pages.landing.feature_time_management.description",
       icon: Clock,
       color: "text-secondary",
     },
@@ -47,87 +49,77 @@ export function LandingPage() {
   const steps = [
     {
       number: 1,
-      title: "Utwórz swoje przedmioty",
-      description: "Dodaj wszystkie przedmioty i kursy, aby rozpocząć planowanie nauki.",
+      titleKey: "pages.landing.step_1_title",
+      descriptionKey: "pages.landing.step_1_description",
     },
     {
       number: 2,
-      title: "Dodaj zadania",
-      description: "Wprowadź zadania, egzaminy i cele wraz z terminami oraz priorytetami.",
+      titleKey: "pages.landing.step_2_title",
+      descriptionKey: "pages.landing.step_2_description",
     },
     {
       number: 3,
-      title: "Wygeneruj harmonogram",
-      description: "Pozwól StudyPlannerowi stworzyć zoptymalizowany harmonogram dostosowany do Ciebie.",
+      titleKey: "pages.landing.step_3_title",
+      descriptionKey: "pages.landing.step_3_description",
     },
     {
       number: 4,
-      title: "Monitoruj postępy i osiągaj cele",
-      description: "Śledź wyniki, modyfikuj zadania i konsekwentnie realizuj swoje cele edukacyjne.",
+      titleKey: "pages.landing.step_4_title",
+      descriptionKey: "pages.landing.step_4_description",
     },
   ]
 
-  const testimonials = [
-    {
-      name: "Anna M.",
-      role: "Studentka",
-      school: "Uniwersytet Warszawski",
-      content:
-        "StudyPlanner całkowicie zmienił sposób, w jaki zarządzam swoim czasem. Generator harmonogramu oszczędza mi kilka godzin tygodniowo.",
-    },
-    {
-      name: "Piotr K.",
-      role: "Uczeń szkoły średniej",
-      school: "Liceum Imienia Marii Curie",
-      content:
-        "System priorytetów i filtrowania zadań pomaga mi skupić się na tym, co naprawdę ważne. Moje wyniki znacznie się poprawiły.",
-    },
-    {
-      name: "Maria L.",
-      role: "Doktorantka",
-      school: "Uniwersytet Jagielloński",
-      content:
-        "Zarządzanie kilkoma projektami jednocześnie było przytłaczające, dopóki nie zaczęłam korzystać ze StudyPlanner. Widok harmonogramu jest bardzo intuicyjny.",
-    },
-    {
-      name: "Tomasz W.",
-      role: "Student Uniwersytetu",
-      school: "Politechnika Warszawska",
-      content:
-        "Panel statystyk dokładnie pokazuje, gdzie faktycznie poświęcam czas. To jak osobisty trener nauki.",
-    },
-  ]
+   const testimonials = [
+     {
+       name: "Anna M.",
+       role: "pages.landing.student_high_school",
+       school: "pages.landing.school_university_warsaw",
+       contentKey: "pages.landing.testimonial_1",
+     },
+     {
+       name: "Piotr K.",
+       role: "pages.landing.student_high_school",
+       school: "pages.landing.school_liceum_curie",
+       contentKey: "pages.landing.testimonial_2",
+     },
+     {
+       name: "Maria L.",
+       role: "pages.landing.student_university",
+       school: "pages.landing.university_jagiellonian",
+       contentKey: "pages.landing.testimonial_3",
+     },
+     {
+       name: "Tomasz W.",
+       role: "pages.landing.student_university",
+       school: "pages.landing.school_warsaw_tech",
+       contentKey: "pages.landing.testimonial_4",
+     },
+   ]
 
   const faqs = [
     {
-      question: "Jak działa generowanie harmonogramu?",
-      answer:
-        "StudyPlanner analizuje Twoje przedmioty, zadania, terminy oraz dostępny czas, aby stworzyć optymalny harmonogram. Uwzględnia priorytety, złożoność zadań oraz Twoje wcześniejsze tempo nauki.",
+      questionKey: "pages.landing.faq_q1",
+      answerKey: "pages.landing.faq_a1",
     },
     {
-      question: "Czy mogę edytować zadania po ich utworzeniu?",
-      answer:
-        "Tak. Możesz w dowolnym momencie edytować, przesuwać lub usuwać zadania, a harmonogram automatycznie dostosuje się do zmian.",
+      questionKey: "pages.landing.faq_q2",
+      answerKey: "pages.landing.faq_a2",
     },
     {
-      question: "Czy aplikacja działa na urządzeniach mobilnych?",
-      answer:
-        "Tak. StudyPlanner jest w pełni responsywny i działa na komputerach, tabletach oraz smartfonach. Dane synchronizują się automatycznie.",
+      questionKey: "pages.landing.faq_q3",
+      answerKey: "pages.landing.faq_a3",
     },
     {
-      question: "Jak działa system priorytetów?",
-      answer:
-        "Zadania możesz oznaczyć jako niskiego, średniego lub wysokiego priorytetu. System wykorzystuje te informacje do odpowiedniego rozplanowania czasu nauki.",
+      questionKey: "pages.landing.faq_q4",
+      answerKey: "pages.landing.faq_a4",
     },
     {
-      question: "Czy mogę udostępniać swój harmonogram innym?",
-      answer:
-        "Obecnie harmonogramy są prywatne, jednak możliwy jest eksport danych i ich udostępnienie. Funkcje współpracy są planowane.",
+      questionKey: "pages.landing.faq_q5",
+      answerKey: "pages.landing.faq_a5",
     },
     {
-      question: "Czym StudyPlanner różni się od innych aplikacji?",
-      answer:
-        "StudyPlanner nie tylko porządkuje zadania, ale aktywnie pomaga tworzyć realny, dopasowany harmonogram nauki oparty na Twoich preferencjach i dostępnym czasie.",
+      questionKey: "pages.landing.faq_q6",
+      answerKey: "pages.landing.faq_a6",
     },
   ]
 
@@ -143,28 +135,30 @@ export function LandingPage() {
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-slate-300">
                   <Zap className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium text-primary">Inteligentne planowanie nauki</span>
+                  <span className="text-sm font-medium text-primary">
+                    {t("pages.landing.feature_smart_planning.title")}
+                  </span>
                 </div>
                 <h1 className="text-5xl sm:text-6xl font-bold text-foreground leading-tight">
-                  Ucz się mądrze,
+                  {t("pages.landing.hero_title")}
                   <br />
-                  <span className="text-primary">nie ciężej</span>
+                  <span className="text-primary"></span>
                 </h1>
                 <p className="text-xl text-muted-foreground leading-relaxed">
-                  Stwórz efektywny harmonogram nauki w kilka minut. StudyPlanner organizuje Twoje przedmioty, śledzi postępy i pomaga osiągać cele edukacyjne w prosty i skuteczny sposób.
+                  {t("pages.landing.hero_subtitle")}
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/register">
                   <Button size="lg" className="text-base h-12 px-8 gap-2">
-                    Zacznij za darmo
+                    {t("pages.landing.cta_button")}
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
                 <Link to="/login">
                   <Button variant="outline" size="lg" className="text-base h-12 px-8">
-                    Zaloguj się
+                    {t("pages.landing.cta_secondary")}
                   </Button>
                 </Link>
               </div>
@@ -172,11 +166,15 @@ export function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-8 pt-4">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-                  <span className="text-sm font-medium text-foreground">Nie wymagana karta płatnicza</span>
+                  <span className="text-sm font-medium text-foreground">
+                    {t("pages.landing.no_credit_card")}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-                  <span className="text-sm font-medium text-foreground">Darmowy dostęp</span>
+                  <span className="text-sm font-medium text-foreground">
+                    {t("pages.landing.free_access")}
+                  </span>
                 </div>
               </div>
             </div>
@@ -190,10 +188,10 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl sm:text-5xl font-bold text-primary">
-              Wszystko, czego potrzebujesz do skutecznej nauki
+              {t("pages.landing.features_title")}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Nowoczesne narzędzia stworzone z myślą o studentach, którzy chcą lepiej zarządzać czasem i osiągać lepsze wyniki.
+              {t("pages.landing.features_subtitle")}
             </p>
           </div>
 
@@ -208,9 +206,9 @@ export function LandingPage() {
                         <div className="p-3 rounded-lg bg-primary/10">
                           <Icon className={`h-6 w-6 ${feature.color}`} />
                         </div>
-                        <h3 className="text-lg font-semibold text-foreground">{feature.title}</h3>
+                        <h3 className="text-lg font-semibold text-foreground">{t(feature.titleKey)}</h3>
                       </div>
-                      <p className="text-muted-foreground">{feature.description}</p>
+                      <p className="text-muted-foreground">{t(feature.descriptionKey)}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -223,9 +221,11 @@ export function LandingPage() {
       <section id="how-it-works" className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-4xl sm:text-5xl font-bold text-primary">Jak to działa – prosto i skutecznie</h2>
+            <h2 className="text-4xl sm:text-5xl font-bold text-primary">
+              {t("pages.landing.how_it_works_title")}
+            </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Zacznij w kilka minut i zmień sposób, w jaki się uczysz.
+              {t("pages.landing.how_it_works_subtitle")}
             </p>
           </div>
 
@@ -241,8 +241,8 @@ export function LandingPage() {
                     {step.number}
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-xl font-semibold text-foreground">{step.title}</h3>
-                    <p className="text-muted-foreground">{step.description}</p>
+                    <h3 className="text-xl font-semibold text-foreground">{t(step.titleKey)}</h3>
+                    <p className="text-muted-foreground">{t(step.descriptionKey)}</p>
                   </div>
                 </div>
               </div>
@@ -254,9 +254,11 @@ export function LandingPage() {
       <section id="testimonials" className="py-20 bg-muted/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-4xl sm:text-5xl font-bold text-primary">Co mówią studenci</h2>
+            <h2 className="text-4xl sm:text-5xl font-bold text-primary">
+              {t("pages.landing.testimonials_title")}
+            </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Opinie studentów z czołowych polskich uczelni, którzy korzystają ze StudyPlanner.
+              {t("pages.landing.testimonials_subtitle")}
             </p>
           </div>
 
@@ -269,11 +271,11 @@ export function LandingPage() {
                       <div>
                         <h4 className="font-semibold text-foreground">{testimonial.name}</h4>
                         <p className="text-sm text-muted-foreground">
-                          {testimonial.role} • {testimonial.school}
+                          {t(testimonial.role)} • {t(testimonial.school)}
                         </p>
                       </div>
                     </div>
-                    <p className="text-foreground italic">"{testimonial.content}"</p>
+                    <p className="text-foreground italic">"{t(testimonial.contentKey)}"</p>
                   </div>
                 </CardContent>
               </Card>
@@ -285,9 +287,11 @@ export function LandingPage() {
       <section id="faq" className="py-20 bg-background">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-4xl sm:text-5xl font-bold text-primary">Często zadawane pytania</h2>
+            <h2 className="text-4xl sm:text-5xl font-bold text-primary">
+              {t("pages.landing.faq_title")}
+            </h2>
             <p className="text-lg text-muted-foreground">
-              Wszystko, co warto wiedzieć o StudyPlanner.
+              {t("pages.landing.faq_subtitle")}
             </p>
           </div>
 
@@ -301,14 +305,17 @@ export function LandingPage() {
                 <CardContent className="pt-6">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-foreground">{faq.question}</h3>
+                      <h3 className="text-lg font-semibold text-foreground">{t(faq.questionKey)}</h3>
                       <ChevronDown
-                        className={`h-5 w-5 text-primary transition-transform ${openFaq === idx ? "rotate-180" : ""
-                          }`}
+                        className={`h-5 w-5 text-primary transition-transform ${
+                          openFaq === idx ? "rotate-180" : ""
+                        }`}
                       />
                     </div>
                     {openFaq === idx && (
-                      <p className="text-muted-foreground border-t border-slate-300 pt-4">{faq.answer}</p>
+                      <p className="text-muted-foreground border-t border-slate-300 pt-4">
+                        {t(faq.answerKey)}
+                      </p>
                     )}
                   </div>
                 </CardContent>
@@ -322,22 +329,22 @@ export function LandingPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
           <div className="space-y-4">
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
-              Gotowy, aby zmienić sposób nauki?
+              {t("pages.landing.cta_section_title")}
             </h2>
             <p className="text-xl text-muted-foreground">
-              Dołącz do tysięcy studentów, którzy korzystają ze StudyPlanner, aby skuteczniej osiągać swoje cele akademickie.
+              {t("pages.landing.cta_section_description")}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register">
               <Button size="lg" className="text-base h-12 px-8 gap-2">
-                Zacznij za darmo
+                {t("pages.landing.cta_button")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <Link to="/login">
               <Button variant="outline" size="lg" className="text-base h-12 px-8">
-                Masz już konto? Zaloguj się
+                {t("pages.landing.already_have_account")}
               </Button>
             </Link>
           </div>
@@ -351,30 +358,32 @@ export function LandingPage() {
               <div className="flex items-center gap-2">
                 <span className="font-bold text-foreground">StudyPlanner</span>
               </div>
-              <p className="text-sm text-muted-foreground">Ucz się mądrzej, nie ciężej.</p>
+              <p className="text-sm text-muted-foreground">
+                {t("pages.landing.footer_tagline")}
+              </p>
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-semibold text-foreground">Produkt</h4>
+              <h4 className="font-semibold text-foreground">{t("pages.landing.footer_product")}</h4>
               <ul className="space-y-2 text-sm">
                 <li>
                   <a href="#features" className="text-muted-foreground hover:text-primary transition-colors">
-                    Funkcje
+                    {t("pages.landing.footer_features")}
                   </a>
                 </li>
                 <li>
                   <a href="#how-it-works" className="text-muted-foreground hover:text-primary transition-colors">
-                    Jak to działa
+                    {t("pages.landing.how_it_works_title")}
                   </a>
                 </li>
                 <li>
                   <a href="#testimonials" className="text-muted-foreground hover:text-primary transition-colors">
-                    Opinie
+                    {t("pages.landing.footer_opinions")}
                   </a>
                 </li>
                 <li>
                   <a href="#faq" className="text-muted-foreground hover:text-primary transition-colors">
-                    Pytania
+                    {t("pages.landing.faq_title")}
                   </a>
                 </li>
               </ul>

@@ -1,5 +1,5 @@
 import axios from "axios"
-import type { AxiosInstance, AxiosError } from "axios"
+import type { AxiosInstance } from "axios"
 import type { AuthResponse, LoginRequest, RegisterRequest, User } from "@/types"
 
 
@@ -12,18 +12,6 @@ export const api = axios.create({
     "Content-Type": "application/json",
   },
 })
-
-// Setup API interceptor
-api.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("access_token")
-      window.location.href = "/login"
-    }
-    return Promise.reject(error)
-  }
-)
 
 class ApiClient {
   private client: AxiosInstance
@@ -86,12 +74,12 @@ class ApiClient {
     return response.data
   }
 
-  async createSubject(data: any) {
+  async createSubject(data: Record<string, unknown>) {
     const response = await this.client.post("/subjects", data)
     return response.data
   }
 
-  async updateSubject(id: string, data: any) {
+  async updateSubject(id: string, data: Record<string, unknown>) {
     const response = await this.client.put(`/subjects/${id}`, data)
     return response.data
   }
@@ -101,17 +89,17 @@ class ApiClient {
   }
 
   // Task endpoints
-  async getTasks(filters?: any) {
+  async getTasks(filters?: Record<string, unknown>) {
     const response = await this.client.get("/tasks", { params: filters })
     return response.data
   }
 
-  async createTask(data: any) {
+  async createTask(data: Record<string, unknown>) {
     const response = await this.client.post("/tasks", data)
     return response.data
   }
 
-  async updateTask(id: string, data: any) {
+  async updateTask(id: string, data: Record<string, unknown>) {
     const response = await this.client.put(`/tasks/${id}`, data)
     return response.data
   }
@@ -121,12 +109,12 @@ class ApiClient {
   }
 
   // Schedule endpoints
-  async generateSchedule(params?: any) {
+  async generateSchedule(params?: Record<string, unknown>) {
     const response = await this.client.get("/schedule/generate", { params })
     return response.data
   }
 
-  async getSchedule(params?: any) {
+  async getSchedule(params?: Record<string, unknown>) {
     const response = await this.client.get("/schedule", { params })
     return response.data
   }

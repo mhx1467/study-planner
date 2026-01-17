@@ -83,7 +83,6 @@
   body {
     background-color: hsl(var(--background) / <alpha-value>);
     color: hsl(var(--foreground) / <alpha-value>);
-    padding-bottom: 72px;
   }
 }
 

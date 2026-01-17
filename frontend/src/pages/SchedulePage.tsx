@@ -8,6 +8,7 @@ import { pl } from "date-fns/locale"
 import { useSchedule, useGenerateSchedule, useSubjects } from "@/hooks/useApi"
 import { GenerateScheduleDialog } from "@/components/GenerateScheduleDialog"
 import type { GenerateScheduleParams } from "@/components/GenerateScheduleDialog"
+import { useTranslation } from "@/hooks/useTranslation"
 
 interface ScheduleEvent {
   id: number
@@ -21,23 +22,24 @@ interface ScheduleEvent {
 }
 
 export function SchedulePage() {
-   const [currentDate, setCurrentDate] = useState(new Date())
-   const [viewMode, setViewMode] = useState<"day" | "week">("week")
-   const [error, setError] = useState("")
-   const [showGenerateDialog, setShowGenerateDialog] = useState(false)
-   const [openPopoverId, setOpenPopoverId] = useState<number | string | null>(null)
-   
-   const { data: events = [], isLoading, refetch } = useSchedule(currentDate)
-   const generateSchedule = useGenerateSchedule()
-   const { data: subjects = [] } = useSubjects()
+    const [currentDate, setCurrentDate] = useState(new Date())
+    const [viewMode, setViewMode] = useState<"day" | "week">("week")
+    const [error, setError] = useState("")
+    const [showGenerateDialog, setShowGenerateDialog] = useState(false)
+    const [openPopoverId, setOpenPopoverId] = useState<number | string | null>(null)
+    const { t } = useTranslation()
+    
+    const { data: events = [], isLoading, refetch } = useSchedule(currentDate)
+    const generateSchedule = useGenerateSchedule()
+    const { data: subjects = [] } = useSubjects()
 
-   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
-   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
+    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
+    const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
 
-   // Helper function to get subject name by ID
-   const getSubjectName = (subjectId: number) => {
-     return subjects.find((s: any) => s.id === subjectId)?.name || "Bez przedmiotu"
-   }
+    // Helper function to get subject name by ID
+    const getSubjectName = (subjectId: number) => {
+      return subjects.find((s: any) => s.id === subjectId)?.name || t("pages.no_subject")
+    }
 
    // Helper function to extract date from ISO datetime string
    const getDateFromISO = (isoString: string): Date => {
@@ -164,9 +166,9 @@ export function SchedulePage() {
        })
        // Refetch schedule after generation
        setTimeout(() => refetch(), 1000)
-     } catch (err: any) {
-       setError(err.response?.data?.detail || "Błąd podczas generowania harmonogramu")
-     }
+       } catch (err) {
+         setError((err as any).response?.data?.detail || t("pages.schedule_generation_error"))
+       }
    }
 
     return (
@@ -174,19 +176,19 @@ export function SchedulePage() {
         {isLoading && (
           <Card className="mb-8 border-slate-300">
             <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground">Ładowanie harmonogramu...</p>
+              <p className="text-center text-muted-foreground">{t("pages.schedule.loading")}</p>
             </CardContent>
           </Card>
         )}
         
         <div className="mb-8">
-         <h1 className="text-4xl font-bold text-primary">
-           Harmonogram
-         </h1>
-         <p className="text-muted-foreground mt-2 text-lg">
-           Wyświetl i zarządzaj swoim harmonogramem nauki
-         </p>
-       </div>
+          <h1 className="text-4xl font-bold text-primary">
+            {t("pages.schedule.title")}
+          </h1>
+          <p className="text-muted-foreground mt-2 text-lg">
+            {t("pages.schedule.description")}
+          </p>
+        </div>
 
        {error && (
          <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex gap-3">
@@ -199,34 +201,34 @@ export function SchedulePage() {
        <Card className="mb-8 border-slate-300">
          <CardContent className="pt-6">
            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-             <div className="flex gap-2">
-               <Button variant="outline" onClick={() => setCurrentDate(addDays(currentDate, -7))} size="sm">
-                 ← Poprzednio
-               </Button>
-               <Button variant="outline" onClick={() => setCurrentDate(new Date())} size="sm">
-                 Dzisiaj
-               </Button>
-               <Button variant="outline" onClick={() => setCurrentDate(addDays(currentDate, 7))} size="sm">
-                 Dalej →
-               </Button>
-             </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setCurrentDate(addDays(currentDate, -7))} size="sm">
+                  {t("pages.schedule.previous_week")}
+                </Button>
+                <Button variant="outline" onClick={() => setCurrentDate(new Date())} size="sm">
+                  {t("pages.schedule.today")}
+                </Button>
+                <Button variant="outline" onClick={() => setCurrentDate(addDays(currentDate, 7))} size="sm">
+                  {t("pages.schedule.next_week")}
+                </Button>
+              </div>
 
-             <div className="flex gap-2">
-               <Button
-                 variant={viewMode === "day" ? "default" : "outline"}
-                 onClick={() => setViewMode("day")}
-                 size="sm"
-               >
-                 Dzień
-               </Button>
-               <Button
-                 variant={viewMode === "week" ? "default" : "outline"}
-                 onClick={() => setViewMode("week")}
-                 size="sm"
-               >
-                 Tydzień
-               </Button>
-             </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === "day" ? "default" : "outline"}
+                  onClick={() => setViewMode("day")}
+                  size="sm"
+                >
+                  {t("pages.schedule.day_view")}
+                </Button>
+                <Button
+                  variant={viewMode === "week" ? "default" : "outline"}
+                  onClick={() => setViewMode("week")}
+                  size="sm"
+                >
+                  {t("pages.schedule.week_view")}
+                </Button>
+              </div>
 
              <div className="flex items-center gap-2 text-foreground font-medium">
                <Calendar className="h-4 w-4 text-primary" />
@@ -242,10 +244,10 @@ export function SchedulePage() {
        {viewMode === "week" && (
          <Card className="border-slate-300">
            {/* Week header with day names */}
-           <div className="flex border-b border-slate-300">
-             <div className="w-16 bg-muted/50 border-r border-slate-300 p-3 flex items-center justify-center flex-shrink-0">
-               <span className="text-xs font-semibold text-foreground">Godzina</span>
-             </div>
+            <div className="flex border-b border-slate-300">
+              <div className="w-16 bg-muted/50 border-r border-slate-300 p-3 flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-semibold text-foreground">{t("pages.schedule.hour")}</span>
+              </div>
              <div className="flex flex-1">
                {weekDays.map((day, idx) => (
                  <div
@@ -326,9 +328,9 @@ export function SchedulePage() {
                         (otherEvent) => parseISO(otherEvent.end_time).getTime() === startDate.getTime()
                       )
 
-                      let bgColor = "bg-blue-500"
-                      if (event.title === "Break") {
-                        bgColor = "bg-gray-400"
+                       let bgColor = "bg-blue-500"
+                       if (event.title === t("pages.break")) {
+                         bgColor = "bg-gray-400"
                       } else if (event.color === "red") {
                         bgColor = "bg-red-500"
                       } else if (event.color === "yellow") {
@@ -394,15 +396,15 @@ export function SchedulePage() {
               </div>
             </div>
 
-            {events.length === 0 && (
-              <CardContent className="text-center py-12">
-                <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-medium text-foreground mb-2">Brak zaplanowanych zdarzeń</h3>
-                <p className="text-muted-foreground">
-                  Wygeneruj harmonogram lub dodaj ręcznie zdarzenia, aby zacząć
-                </p>
-              </CardContent>
-            )}
+             {events.length === 0 && (
+               <CardContent className="text-center py-12">
+                 <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                 <h3 className="text-lg font-medium text-foreground mb-2">{t("pages.schedule.no_events")}</h3>
+                 <p className="text-muted-foreground">
+                   {t("pages.schedule.no_events_description")}
+                 </p>
+               </CardContent>
+             )}
          </Card>
        )}
 
@@ -414,15 +416,15 @@ export function SchedulePage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-                {getDayEvents(currentDate).length === 0 ? (
-                  <div className="text-center py-12">
-                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">Brak zdarzeń dzisiaj</h3>
-                    <p className="text-muted-foreground">
-                      Masz wolny dzień! Zaplanuj czas nauki
-                    </p>
-                  </div>
-                ) : (
+             {getDayEvents(currentDate).length === 0 ? (
+                   <div className="text-center py-12">
+                     <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                     <h3 className="text-lg font-medium text-foreground mb-2">{t("pages.schedule.no_events_today")}</h3>
+                     <p className="text-muted-foreground">
+                       {t("pages.schedule.no_events_today_description")}
+                     </p>
+                   </div>
+                 ) : (
                     getDayEvents(currentDate)
                       .sort((a: ScheduleEvent, b: ScheduleEvent) => a.start_time.localeCompare(b.start_time))
                       .map((event: ScheduleEvent) => {
@@ -483,14 +485,14 @@ export function SchedulePage() {
                  <Wand2 className="h-4 w-4" />
                </Button>
              </PopoverTrigger>
-             <PopoverContent className="w-72" side="top" align="center">
-               <div className="space-y-2">
-                 <h4 className="font-semibold text-sm text-primary">Wygeneruj harmonogram</h4>
-                 <p className="text-sm text-muted-foreground">
-                   Automatycznie zaplanuj sesje nauki dla wybranych przedmiotów. System rozłoży zadania na dostępny czas z uwzględnieniem przerw.
-                 </p>
-               </div>
-             </PopoverContent>
+              <PopoverContent className="w-72" side="top" align="center">
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm text-primary">{t("buttons.generate_schedule")}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {t("pages.schedule.generate_description")}
+                  </p>
+                </div>
+              </PopoverContent>
            </Popover>
          </div>
        </div>

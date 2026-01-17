@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react"
 import { Check } from "lucide-react"
+import { useTranslation } from "@/hooks/useTranslation"
 
 const QuizAnimation = () => {
+  const { t } = useTranslation()
   const [stage, setStage] = useState<"quiz" | "transition" | "final">("quiz")
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([])
   const [currentQuestion, setCurrentQuestion] = useState(0)
@@ -10,28 +12,27 @@ const QuizAnimation = () => {
 
   const questions = [
     {
-      question: "Jaka jest pochodna x²?",
-      options: ["2x", "x", "x³", "1"],
+      question: t("quiz_demo.question_1"),
+      options: [t("quiz_demo.q1_opt1"), t("quiz_demo.q1_opt2"), t("quiz_demo.q1_opt3"), t("quiz_demo.q1_opt4")],
       correct: 0,
     },
     {
-      question: "Ile to 2 + 2?",
-      options: ["3", "4", "5", "6"],
+      question: t("quiz_demo.question_2"),
+      options: [t("quiz_demo.q2_opt1"), t("quiz_demo.q2_opt2"), t("quiz_demo.q2_opt3"), t("quiz_demo.q2_opt4")],
       correct: 1,
     },
     {
-      question: "Jaka jest stolica Francji?",
-      options: ["Londyn", "Berlin", "Paryż", "Madryt"],
+      question: t("quiz_demo.question_3"),
+      options: [t("quiz_demo.q3_opt1"), t("quiz_demo.q3_opt2"), t("quiz_demo.q3_opt3"), t("quiz_demo.q3_opt4")],
       correct: 2,
     },
     {
-      question: "Ile to 10 × 5?",
-      options: ["40", "45", "50", "55"],
+      question: t("quiz_demo.question_4"),
+      options: [t("quiz_demo.q4_opt1"), t("quiz_demo.q4_opt2"), t("quiz_demo.q4_opt3"), t("quiz_demo.q4_opt4")],
       correct: 2,
     },
   ]
 
-  // Auto-select correct answer
   useEffect(() => {
     if (stage === "quiz" && !isAnswered) {
       const timer = setTimeout(() => {
@@ -41,13 +42,11 @@ const QuizAnimation = () => {
         setSelectedAnswers(newAnswers)
         setIsAnswered(true)
 
-        // Move to next question or transition
         const nextTimer = setTimeout(() => {
           if (currentQuestion < questions.length - 1) {
             setCurrentQuestion(currentQuestion + 1)
             setIsAnswered(false)
           } else {
-            // All questions answered, transition to zoom out
             setZoomOut(true)
             setTimeout(() => {
               setStage("transition")
@@ -63,7 +62,6 @@ const QuizAnimation = () => {
     }
   }, [stage, currentQuestion, isAnswered, selectedAnswers, questions])
 
-  // Handle transition to final stage
   useEffect(() => {
     if (stage === "transition") {
       const timer = setTimeout(() => {
@@ -76,7 +74,6 @@ const QuizAnimation = () => {
 
   return (
     <div className="relative h-96 lg:h-[500px] flex items-center justify-center">
-      {/* Quiz Stage */}
       {stage === "quiz" && (
         <div
           className={`absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 border border-slate-300 overflow-hidden transition-all duration-500 ease-out ${
@@ -85,19 +82,17 @@ const QuizAnimation = () => {
         >
           <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
           <div className="p-8 h-full flex flex-col justify-between bg-white dark:bg-slate-900">
-            {/* Question */}
-            <div className="space-y-4">
-               <div className="flex items-center gap-2">
-                 <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">
-                   Pytanie {currentQuestion + 1}/{questions.length}
-                 </span>
-               </div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                {questions[currentQuestion].question}
-              </h3>
-            </div>
+             <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">
+                    {t("quiz_demo.question_label")} {currentQuestion + 1}/{questions.length}
+                  </span>
+                </div>
+               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                 {questions[currentQuestion].question}
+               </h3>
+             </div>
 
-            {/* Options */}
             <div className="space-y-3 flex-1 flex flex-col justify-center">
               {questions[currentQuestion].options.map((option, index) => {
                 const isSelected = selectedAnswers[currentQuestion] === index
@@ -135,7 +130,6 @@ const QuizAnimation = () => {
         </div>
       )}
 
-      {/* Transition Stage - Multiple Quiz Cards */}
       {stage === "transition" && (
         <div className="absolute inset-0 grid grid-cols-2 gap-4 p-4 animate-fade-in">
           {questions.map((_, idx) => (
@@ -158,23 +152,21 @@ const QuizAnimation = () => {
         </div>
       )}
 
-       {/* Final Stage - Success Message */}
-       {stage === "final" && (
-         <div className="absolute inset-0 flex items-center justify-center animate-fade-in">
-           <div className="text-center space-y-4">
-             <div className="relative">
-               <h1 className="relative text-5xl lg:text-6xl font-bold text-orange-600 dark:text-orange-400 animate-scale-in">
-                 Egzaminy masz pod kontrolą
-               </h1>
-             </div>
-             <p className="text-slate-700 max-w-sm mx-auto text-lg">
-               Ćwicz regularnie i zobacz realne postępy
-             </p>
-           </div>
-         </div>
-       )}
+        {stage === "final" && (
+          <div className="absolute inset-0 flex items-center justify-center animate-fade-in">
+            <div className="text-center space-y-4">
+              <div className="relative">
+                <h1 className="relative text-5xl lg:text-6xl font-bold text-orange-600 dark:text-orange-400 animate-scale-in">
+                  {t("quiz_demo.success_title")}
+                </h1>
+              </div>
+              <p className="text-slate-700 max-w-sm mx-auto text-lg">
+                {t("quiz_demo.success_subtitle")}
+              </p>
+            </div>
+          </div>
+        )}
 
-      {/* CSS Animations */}
       <style>{`
         @keyframes scaleIn {
           from {

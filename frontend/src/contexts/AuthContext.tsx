@@ -29,7 +29,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(currentUser)
           setError(null)
         } catch (err) {
-          console.error("Failed to fetch current user:", err)
           localStorage.removeItem("access_token")
         }
       }
@@ -76,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setError(null)
     } catch (err) {
-      console.error("Logout error:", err)
+      // Logout error handled silently
     } finally {
       setIsLoading(false)
     }

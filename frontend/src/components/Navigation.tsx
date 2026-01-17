@@ -3,11 +3,13 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { LogOut, Menu, X } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "@/hooks/useTranslation"
 
 export function Navigation() {
   const { user, logout, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLogout = async () => {
@@ -32,25 +34,25 @@ export function Navigation() {
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                Funkcje
-              </a>
-              <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                Jak to działa
-              </a>
-              <a href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                Opinie
-              </a>
-            </div>
+               <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                 {t("navigation.features")}
+               </a>
+               <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                 {t("navigation.how_it_works")}
+               </a>
+               <a href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                 {t("navigation.testimonials")}
+               </a>
+             </div>
 
-            <div className="hidden md:flex items-center gap-3">
-              <Link to="/login">
-                <Button variant="ghost">Zaloguj się</Button>
-              </Link>
-              <Link to="/register">
-                <Button>Zacznij za darmo</Button>
-              </Link>
-            </div>
+             <div className="hidden md:flex items-center gap-3">
+               <Link to="/login">
+                 <Button variant="ghost">{t("auth.login")}</Button>
+               </Link>
+               <Link to="/register">
+                 <Button>{t("navigation.start_free")}</Button>
+               </Link>
+             </div>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -64,29 +66,29 @@ export function Navigation() {
             </button>
           </div>
 
-           {mobileMenuOpen && (
-             <div className="md:hidden border-t border-slate-300 py-4 space-y-4">
-               <a href="#features" className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2">
-                 Funkcje
-               </a>
-               <a href="#how-it-works" className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2">
-                 Jak to działa
-               </a>
-               <a href="#testimonials" className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2">
-                 Opinie
-               </a>
-               <div className="flex flex-col gap-2 pt-2">
-                 <Link to="/login" className="block">
-                   <Button variant="outline" className="w-full">
-                     Zaloguj się
-                   </Button>
-                 </Link>
-                 <Link to="/register" className="block">
-                   <Button className="w-full">Zacznij za darmo</Button>
-                 </Link>
-               </div>
-             </div>
-           )}
+            {mobileMenuOpen && (
+              <div className="md:hidden border-t border-slate-300 py-4 space-y-4">
+                <a href="#features" className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2">
+                  {t("navigation.features")}
+                </a>
+                <a href="#how-it-works" className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2">
+                  {t("navigation.how_it_works")}
+                </a>
+                <a href="#testimonials" className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2">
+                  {t("navigation.testimonials")}
+                </a>
+                <div className="flex flex-col gap-2 pt-2">
+                  <Link to="/login" className="block">
+                    <Button variant="outline" className="w-full">
+                      {t("auth.login")}
+                    </Button>
+                  </Link>
+                  <Link to="/register" className="block">
+                    <Button className="w-full">{t("navigation.start_free")}</Button>
+                  </Link>
+                </div>
+              </div>
+            )}
         </div>
       </nav>
     )
@@ -101,36 +103,36 @@ export function Navigation() {
               StudyPlanner
             </Link>
 
-             <div className="hidden md:flex gap-6">
-               <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
-                 Pulpit
-                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-               </Link>
-               <Link to="/subjects" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
-                 Przedmioty
-                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-               </Link>
-               <Link to="/tasks" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
-                 Zadania
-                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-               </Link>
-               <Link to="/schedule" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
-                 Harmonogram
-                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-               </Link>
-               <Link to="/statistics" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
-                 Statystyki
-                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-               </Link>
-             </div>
+              <div className="hidden md:flex gap-6">
+                <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
+                  {t("navigation.dashboard")}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                </Link>
+                <Link to="/subjects" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
+                  {t("navigation.subjects")}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                </Link>
+                <Link to="/tasks" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
+                  {t("navigation.tasks")}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                </Link>
+                <Link to="/schedule" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
+                  {t("navigation.schedule")}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                </Link>
+                <Link to="/statistics" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
+                  {t("navigation.statistics")}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                </Link>
+              </div>
           </div>
 
-           <div className="flex items-center gap-4">
-             <div className="text-sm text-muted-foreground">{user?.email}</div>
-             <Button variant="ghost" size="icon" onClick={handleLogout} title="Wyloguj się" className="hover:text-primary">
-               <LogOut className="h-4 w-4" />
-             </Button>
-           </div>
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-muted-foreground">{user?.email}</div>
+              <Button variant="ghost" size="icon" onClick={handleLogout} title={t("navigation.logout")} className="hover:text-primary">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
         </div>
       </div>
     </nav>

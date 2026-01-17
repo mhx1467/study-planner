@@ -8,7 +8,8 @@ from app.services import statistics
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
-Base.metadata.create_all(bind=engine)
+# NOTE: Tables are now created by Alembic migrations
+# Do NOT auto-create tables here anymore
 
 app = FastAPI(
     title="Study Planner API",

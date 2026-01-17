@@ -1,34 +1,36 @@
 // User types
 export interface User {
-  id: string
+  id: number
   email: string
   username: string
+  role?: string
 }
 
 // Subject types
 export interface Subject {
-  id: string
+  id: number
   name: string
   description?: string
   color?: string
-  created_at: string
-  updated_at: string
+  created_at?: string
+  updated_at?: string
 }
 
 // Task types
-export type TaskStatus = "pending" | "in_progress" | "completed" | "cancelled"
+export type TaskStatus = "todo" | "in_progress" | "done"
 export type TaskPriority = "low" | "medium" | "high" | "urgent"
 
 export interface Task {
-  id: string
-  subject_id: string
+  id: number
+  subject_id: number
   title: string
   description?: string
   status: TaskStatus
   priority: TaskPriority
-  due_date: string
-  estimated_hours?: number
-  actual_hours?: number
+  deadline: string
+  estimated_minutes: number
+  actual_minutes?: number
+  completed_at?: string
   created_at: string
   updated_at: string
 }
