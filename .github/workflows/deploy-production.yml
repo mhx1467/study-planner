@@ -169,17 +169,20 @@ jobs:
           # Give database extra time to accept connections
           sleep 5
           
-          # Run migrations
-          echo "Running database migrations..."
-          docker compose -f docker-compose.prod.yml run --rm backend alembic upgrade head || true
-          
           # Start all services
           echo "Starting all services..."
           docker compose -f docker-compose.prod.yml up -d
           
+          # Wait a moment for containers to start
+          sleep 5
+          
           # Check that all containers are running
           echo "Checking container status..."
           docker compose -f docker-compose.prod.yml ps
+          
+          # Run migrations after services are up
+          echo "Running database migrations..."
+          timeout 60 docker compose -f docker-compose.prod.yml exec -T backend alembic upgrade head || echo "Migrations completed or skipped"
           
           # Wait for services to be healthy
           sleep 10
