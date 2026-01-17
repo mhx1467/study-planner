@@ -21,15 +21,12 @@ environment = os.getenv("ENVIRONMENT", "development")
 if environment == "production":
     # In production, allow requests from the frontend
     allowed_origins = [
-        "http://localhost:31321",
-        os.getenv("FRONTEND_URL", "http://localhost:31321"),
+        "*",
     ]
 else:
     # In development, allow localhost with different ports
     allowed_origins = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://localhost:31321",
+        "*",
     ]
 
 app.add_middleware(
