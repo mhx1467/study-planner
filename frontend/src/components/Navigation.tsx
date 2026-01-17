@@ -45,14 +45,14 @@ export function Navigation() {
                </a>
              </div>
 
-             <div className="hidden md:flex items-center gap-3">
-               <Link to="/login">
-                 <Button variant="ghost">{t("auth.login")}</Button>
-               </Link>
-               <Link to="/register">
-                 <Button>{t("navigation.start_free")}</Button>
-               </Link>
-             </div>
+              <div className="hidden md:flex items-center gap-3">
+                <Link to="/login">
+                  <Button variant="ghost">{t("auth.login")}</Button>
+                </Link>
+                <Link to="/register">
+                  <Button>{t("navigation.start_free")}</Button>
+                </Link>
+              </div>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -120,19 +120,23 @@ export function Navigation() {
                   {t("navigation.schedule")}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
                 </Link>
-                <Link to="/statistics" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
-                  {t("navigation.statistics")}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-                </Link>
-              </div>
+                 <Link to="/statistics" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
+                   {t("navigation.statistics")}
+                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                 </Link>
+                 <Link to="/settings" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
+                   {t("navigation.settings")}
+                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                 </Link>
+               </div>
           </div>
 
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-muted-foreground">{user?.email}</div>
-              <Button variant="ghost" size="icon" onClick={handleLogout} title={t("navigation.logout")} className="hover:text-primary">
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
+             <div className="flex items-center gap-4">
+               <div className="text-sm text-muted-foreground">{user?.email}</div>
+               <Button variant="ghost" size="icon" onClick={handleLogout} title={t("navigation.logout")} className="hover:text-primary">
+                 <LogOut className="h-4 w-4" />
+               </Button>
+             </div>
         </div>
       </div>
     </nav>

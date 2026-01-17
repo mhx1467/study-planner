@@ -24,6 +24,7 @@ import {
 import { useCreateTask, useUpdateTask, useDeleteTask, useTasks, useSubjects } from "@/hooks/useApi"
 import { useToast } from "@/contexts/ToastContext"
 import { useTranslation } from "@/hooks/useTranslation"
+import { usePreferences } from "@/contexts/PreferencesContext"
 import { getDaysUntilDue } from "@/lib/dateUtils"
 
 interface Subject {
@@ -55,10 +56,11 @@ export function TasksPage() {
   const deleteTask = useDeleteTask()
    const { showSuccess } = useToast()
    const { t, tf } = useTranslation()
+   const { preferences } = usePreferences()
    const subjectDropdownRef = useRef<HTMLDivElement>(null)
 
   // View mode state
-  const [viewMode, setViewMode] = useState<"list" | "kanban">("list")
+   const [viewMode, setViewMode] = useState<"list" | "kanban">(preferences.taskViewMode)
 
   // Error and form state
   const [error, setError] = useState("")
@@ -191,8 +193,8 @@ export function TasksPage() {
           setShowForm(false)
           refetch()
          } catch {
-           // Error is already handled by the API interceptor with translations
-           // Just keep the form visible for user to retry
+           // error is already handled by the API interceptor with translations
+           // just keep the form visible for user to retry
          }
       }
 
@@ -223,7 +225,7 @@ export function TasksPage() {
            showSuccess(t("pages.task_deleted_title"), t("pages.task_deleted_message"))
            refetch()
          } catch {
-           // Error is already handled by the API interceptor with translations
+           // error is already handled by the API interceptor with translations
          } finally {
            setShowDeleteDialog(false)
            setDeletingTaskId(null)
@@ -249,10 +251,8 @@ export function TasksPage() {
 
   const handleToggleComplete = (task: Task) => {
     if (task.status === "done") {
-      // If already done, just toggle back to todo
       handleConfirmCompletion(task.id, 0, true)
     } else {
-      // Open dialog to ask for actual minutes
       setCompletingTaskId(task.id)
       setActualMinutes("")
       setShowCompletionDialog(true)
@@ -422,7 +422,6 @@ export function TasksPage() {
            </div>
          </div>
 
-        {/* Form Card */}
         {showForm && (
           <Card className="mb-8 border-slate-300">
             <CardHeader>
@@ -603,7 +602,6 @@ export function TasksPage() {
            </Card>
          )}
 
-         {/* Task Completion Dialog */}
          <Dialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
            <DialogContent>
              <DialogHeader>
@@ -651,7 +649,6 @@ export function TasksPage() {
            </DialogContent>
           </Dialog>
 
-          {/* Task Delete Confirmation Dialog */}
           <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <DialogContent>
               <DialogHeader>
@@ -679,10 +676,8 @@ export function TasksPage() {
             </DialogContent>
           </Dialog>
 
-          {/* View Toggle and Filter Buttons */}
          {tasks.length > 0 && (
            <div className="mb-6 space-y-4">
-             {/* View Toggle */}
              <div className="flex gap-2">
                <Button
                  variant={viewMode === "list" ? "default" : "outline"}
@@ -704,7 +699,6 @@ export function TasksPage() {
                </Button>
              </div>
 
-             {/* Filter Buttons */}
              <div className="flex gap-2 flex-wrap">
                <Button
                  variant={filterPriority === "all" ? "default" : "outline"}
@@ -738,7 +732,6 @@ export function TasksPage() {
            </div>
          )}
 
-         {/* Empty State */}
          {filteredTasks.length === 0 ? (
            <Card className="text-center py-12 border-slate-300">
              <CardContent>

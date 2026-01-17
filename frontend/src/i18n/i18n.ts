@@ -1,6 +1,7 @@
 import pl from './locales/pl.json'
+import en from './locales/en.json'
 
-export type Language = 'pl'
+export type Language = 'pl' | 'en'
 
 export interface Translations {
   [key: string]: string | Translations
@@ -8,6 +9,7 @@ export interface Translations {
 
 const translations: Record<Language, Translations> = {
   pl,
+  en,
 };
 
 export const DEFAULT_LANGUAGE: Language = 'pl'
@@ -66,8 +68,8 @@ export function formatTranslation(
 export function getCurrentLanguage(): Language {
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('language')
-    if (stored === 'pl') {
-      return stored
+    if (stored === 'pl' || stored === 'en') {
+      return stored as Language
     }
   }
   return DEFAULT_LANGUAGE

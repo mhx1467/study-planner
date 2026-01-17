@@ -106,7 +106,6 @@ interface Statistics {
            </p>
          </div>
 
-         {/* Period Selector */}
          <div className="mb-8 flex gap-2">
            <Button
              variant={period === "week" ? "default" : "outline"}
@@ -131,7 +130,6 @@ interface Statistics {
            </Button>
          </div>
 
-         {/* Key Metrics */}
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
            <Card className="border-l-4 border-l-primary">
              <CardContent className="pt-6">
@@ -162,9 +160,7 @@ interface Statistics {
            </Card>
          </div>
 
-        {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Weekly Progress Chart */}
           <Card className="border-slate-300">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -215,7 +211,6 @@ interface Statistics {
                      />
                    </div>
 
-                   {/* Weekly progress bars */}
                    <div className="space-y-3">
                      {displayStats.weeklyProgress.map((day, idx) => {
                        const maxTasks = Math.max(...(displayStats.weeklyProgress?.map(d => d.tasksCompleted || 0) || [1]));
@@ -248,7 +243,6 @@ interface Statistics {
              </CardContent>
           </Card>
 
-          {/* Subject Distribution Chart */}
           <Card className="border-slate-300">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -324,7 +318,6 @@ interface Statistics {
           </Card>
         </div>
 
-        {/* Study Streak Card */}
         <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 border-slate-300">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
@@ -343,7 +336,6 @@ interface Statistics {
           </CardContent>
         </Card>
 
-        {/* Info Notice */}
         <Card className="mt-8 border-sky-blue/50 bg-sky-blue/5">
           <CardContent className="pt-6">
             <p className="text-sm text-foreground">

@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
-import { getTranslation, formatTranslation, getCurrentLanguage, setLanguage as setLanguageUtil, getAvailableLanguages, type Language } from '@/i18n/i18n'
+import { useCallback } from 'react'
+import { getTranslation, formatTranslation, getAvailableLanguages } from '@/i18n/i18n'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 /**
  * Custom React hook for translations
@@ -16,7 +17,7 @@ import { getTranslation, formatTranslation, getCurrentLanguage, setLanguage as s
  * )
  */
 export function useTranslation() {
-  const [language, setLanguageState] = useState<Language>(getCurrentLanguage())
+  const { language, setLanguage } = useLanguage()
 
   /**
    * Translate a key to the current language
@@ -33,14 +34,6 @@ export function useTranslation() {
   const tf = useCallback((key: string, variables: Record<string, string | number>): string => {
     return formatTranslation(key, variables, language)
   }, [language])
-
-  /**
-   * Set the language and persist it
-   */
-  const setLanguage = useCallback((newLanguage: Language) => {
-    setLanguageUtil(newLanguage)
-    setLanguageState(newLanguage)
-  }, [])
 
   /**
    * Get all available languages

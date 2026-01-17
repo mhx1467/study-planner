@@ -124,7 +124,6 @@ export function SubjectsPage() {
           )}
         </div>
 
-        {/* Form Card */}
         {showForm && (
           <Card className="mb-8 border-slate-300">
             <CardHeader>
@@ -182,7 +181,6 @@ export function SubjectsPage() {
           </Card>
         )}
 
-         {/* Subjects Grid */}
          {isLoadingSubjects ? (
            <Card className="text-center py-12 border-slate-300">
              <CardContent>
@@ -247,7 +245,6 @@ export function SubjectsPage() {
          </div>
         )}
 
-        {/* Subject Delete Confirmation Dialog */}
         <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <DialogContent>
             <DialogHeader>

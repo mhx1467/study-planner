@@ -197,7 +197,6 @@ export function SchedulePage() {
          </div>
        )}
 
-       {/* Controls */}
        <Card className="mb-8 border-slate-300">
          <CardContent className="pt-6">
            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -240,10 +239,8 @@ export function SchedulePage() {
          </CardContent>
        </Card>
 
-       {/* Week View */}
        {viewMode === "week" && (
          <Card className="border-slate-300">
-           {/* Week header with day names */}
             <div className="flex border-b border-slate-300">
               <div className="w-16 bg-muted/50 border-r border-slate-300 p-3 flex items-center justify-center flex-shrink-0">
                 <span className="text-xs font-semibold text-foreground">{t("pages.schedule.hour")}</span>
@@ -267,9 +264,7 @@ export function SchedulePage() {
              </div>
            </div>
 
-             {/* Week grid - time and events */}
              <div className="flex">
-               {/* Time labels column */}
                <div className="w-16 bg-muted/50 border-r border-slate-300 flex-shrink-0" style={{ height: `${getMaxDayHeight()}px` }}>
                  {Array.from({ length: 24 }, (_, i) => (
                    <div
@@ -284,7 +279,6 @@ export function SchedulePage() {
                  ))}
                </div>
 
-               {/* Days grid with events */}
                <div className="flex flex-1">
                 {weekDays.map((day, dayIdx) => (
                   <div
@@ -292,7 +286,6 @@ export function SchedulePage() {
                     className="flex-1 border-l border-slate-300 relative"
                     style={{ height: `${getMaxDayHeight()}px` }}
                   >
-                    {/* Hour lines background */}
                     {Array.from({ length: 24 }, (_, i) => (
                       <div
                         key={i}
@@ -304,7 +297,6 @@ export function SchedulePage() {
                       />
                     ))}
 
-                    {/* Events */}
                     {getDayEvents(day).map((event) => {
                       const startDate = parseISO(event.start_time)
                       const endDate = parseISO(event.end_time)
@@ -408,7 +400,6 @@ export function SchedulePage() {
          </Card>
        )}
 
-      {/* Day View */}
       {viewMode === "day" && (
         <Card className="border-slate-300">
           <CardHeader>
@@ -468,7 +459,6 @@ export function SchedulePage() {
          </Card>
        )}
 
-       {/* Floating Toolbar */}
        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
          <div className="flex items-center gap-0 bg-secondary/95 backdrop-blur-sm rounded-lg px-1 py-1 shadow-lg border border-border">
            <Popover open={openPopoverId === 'toolbar-generate'} onOpenChange={(isOpen) => setOpenPopoverId(isOpen ? 'toolbar-generate' : null)}>

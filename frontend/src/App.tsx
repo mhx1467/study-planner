@@ -2,6 +2,8 @@ import { useEffect } from "react"
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AuthProvider } from "@/contexts/AuthContext"
+import { LanguageProvider } from "@/contexts/LanguageContext"
+import { PreferencesProvider } from "@/contexts/PreferencesContext"
 import { ToastProvider, useToast } from "@/contexts/ToastContext"
 import { setupApiErrorInterceptor } from "@/services/apiInterceptor"
 import { ToastContainer } from "@/components/ToastContainer"
@@ -15,6 +17,7 @@ import { SubjectsPage } from "@/pages/SubjectsPage"
 import { TasksPage } from "@/pages/TasksPage"
 import { SchedulePage } from "@/pages/SchedulePage"
 import { StatisticsPage } from "@/pages/StatisticsPage"
+import { SettingsPage } from "@/pages/SettingsPage"
 import "./index.css"
 
 // Create QueryClient instance
@@ -37,10 +40,12 @@ function AppContent() {
 
   return (
     <Router>
-      <AuthProvider>
-        <Navigation />
-        <ToastContainer />
-        <Routes>
+      <LanguageProvider>
+        <PreferencesProvider>
+          <AuthProvider>
+            <Navigation />
+            <ToastContainer />
+            <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -76,17 +81,27 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/statistics"
-            element={
-              <ProtectedRoute>
-                <StatisticsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthProvider>
+           <Route
+             path="/statistics"
+             element={
+               <ProtectedRoute>
+                 <StatisticsPage />
+               </ProtectedRoute>
+             }
+           />
+           <Route
+             path="/settings"
+             element={
+               <ProtectedRoute>
+                 <SettingsPage />
+               </ProtectedRoute>
+             }
+           />
+           <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+        </PreferencesProvider>
+      </LanguageProvider>
     </Router>
   )
 }

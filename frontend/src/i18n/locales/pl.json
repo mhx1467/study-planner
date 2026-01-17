@@ -67,7 +67,8 @@
     "features": "Cechy",
     "testimonials": "Opinie",
     "logout": "Wyloguj się",
-    "start_free": "Zacznij za darmo"
+    "start_free": "Zacznij za darmo",
+    "language": "Język"
   },
   "auth": {
     "login": "Zaloguj się",
@@ -189,7 +190,7 @@
       "generate_description": "Automatycznie zaplanuj sesje nauki dla wybranych przedmiotów. System rozłoży zadania na dostępny czas z uwzględnieniem przerw."
     },
     "deadline": "Termin",
-    "due_in": "Do za",
+    "due_in": "Termin za (dni)",
     "estimate": "Szacunek",
     "spent": "Spędzony",
     "note": "Wskazówka",
@@ -281,12 +282,19 @@
        "free_access": "Darmowy dostęp",
        "no_credit_card": "Bez karty kredytowej",
        "already_have_account": "Masz już konto?",
-       "footer_tagline": "Narzędzie do planowania nauki dla studentów, którzy chcą osiągać więcej",
-       "footer_product": "Produkt",
-       "footer_features": "Funkcje",
-       "footer_opinions": "Opinie"
-     }
-  },
+        "footer_tagline": "Narzędzie do planowania nauki dla studentów, którzy chcą osiągać więcej",
+        "footer_product": "Produkt",
+        "footer_features": "Funkcje",
+        "footer_opinions": "Opinie"
+      },
+      "settings": {
+        "description": "Zarządzaj preferencjami aplikacji",
+        "language": "Język",
+        "language_description": "Wybierz preferowany język interfejsu użytkownika",
+        "default_task_view": "Domyślny widok zadań",
+        "default_task_view_description": "Wybierz, czy zadania mają być wyświetlane domyślnie w widoku listy czy Kanban"
+      }
+   },
   "forms": {
     "username": "Nazwa użytkownika",
     "choose_username": "Wybierz nazwę użytkownika",
