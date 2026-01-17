@@ -149,19 +149,33 @@ jobs:
           
           # Wait for database to be healthy
           echo "Waiting for database to be ready..."
+          READY=false
           for i in {1..30}; do
             if docker compose -f docker-compose.prod.yml exec -T postgres pg_isready -U ${POSTGRES_USER:-postgres} > /dev/null 2>&1; then
               echo "Database is ready"
+              READY=true
               break
             fi
             echo "Waiting for database... ($i/30)"
-            sleep 1
+            sleep 2
           done
           
+          if [ "$READY" = false ]; then
+            echo "Database failed to start within 60 seconds"
+            docker compose -f docker-compose.prod.yml logs postgres
+            exit 1
+          fi
+          
           # Run migrations
-          docker compose -f docker-compose.prod.yml run --rm backend alembic upgrade head
+          echo "Running database migrations..."
+          if ! docker compose -f docker-compose.prod.yml run --rm backend alembic upgrade head; then
+            echo "Migrations failed"
+            docker compose -f docker-compose.prod.yml logs backend
+            exit 1
+          fi
           
           # Start all services
+          echo "Starting all services..."
           docker compose -f docker-compose.prod.yml up -d
           
           # Check that all containers are running
