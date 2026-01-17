@@ -5,7 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ToggleSwitch } from "@/components/ui/toggle-switch"
 import { AlertCircle, Calendar, Clock, Wand2 } from "lucide-react"
 import { format, startOfWeek, addDays, isToday, isSameDay, parseISO } from "date-fns"
-import { pl } from "date-fns/locale"
+import { pl, enUS } from "date-fns/locale"
 import { useSchedule, useGenerateSchedule, useSubjects } from "@/hooks/useApi"
 import { GenerateScheduleDialog } from "@/components/GenerateScheduleDialog"
 import type { GenerateScheduleParams } from "@/components/GenerateScheduleDialog"
@@ -31,9 +31,12 @@ export function SchedulePage() {
       const [openPopoverId, setOpenPopoverId] = useState<number | string | null>(null)
       const scrollContainerRef = useRef<HTMLDivElement>(null)
       const { t } = useTranslation()
-     const { preferences, setScheduleHoursScheme } = usePreferences()
-     
-     const showAllHours = preferences.scheduleHoursScheme === 'all'
+      const { preferences, setScheduleHoursScheme } = usePreferences()
+      
+      // Get locale object based on language preference
+      const locale = preferences.language === 'en' ? enUS : pl
+      
+      const showAllHours = preferences.scheduleHoursScheme === 'all'
      const handleToggleHours = (value: boolean) => {
        setScheduleHoursScheme(value ? 'all' : 'business')
      }
@@ -254,12 +257,12 @@ export function SchedulePage() {
                 </Button>
               </div>
 
-             <div className="flex items-center gap-2 text-foreground font-medium">
-               <Calendar className="h-4 w-4 text-primary" />
-               <span>
-                 {format(weekStart, "MMM d", { locale: pl })} - {format(addDays(weekStart, 6), "MMM d, yyyy", { locale: pl })}
-               </span>
-             </div>
+              <div className="flex items-center gap-2 text-foreground font-medium">
+                <Calendar className="h-4 w-4 text-primary" />
+                <span>
+                  {format(weekStart, "MMM d", { locale })} - {format(addDays(weekStart, 6), "MMM d, yyyy", { locale })}
+                </span>
+              </div>
            </div>
          </CardContent>
        </Card>
@@ -303,21 +306,21 @@ export function SchedulePage() {
                  {/* Scrollable area containing header and content */}
                  <div className="flex-1 border-l border-slate-300 overflow-x-auto overflow-y-auto" ref={scrollContainerRef}>
                    {/* Week header with day names - scrolls horizontally */}
-                   <div className="flex border-b border-slate-300 flex-shrink-0 bg-white sticky top-0 z-10 w-fit xl:w-full">
+                   <div className="flex border-b border-slate-300 flex-shrink-0 bg-white sticky top-0 z-10 w-fit lg:w-full">
                      {weekDays.map((day, idx) => (
                        <div
                          key={idx}
                          className={`flex-1 p-3 text-center border-l border-slate-300 min-w-[150px] ${
                            isToday(day) ? "bg-primary/5" : "bg-muted/30"
                          }`}
-                       >
-                         <div className="font-semibold text-primary text-sm">
-                           {format(day, "EEE")}
-                         </div>
-                         <div className={`text-sm ${isToday(day) ? "text-primary font-bold" : "text-muted-foreground"}`}>
-                           {format(day, "d MMM", { locale: pl })}
-                         </div>
-                       </div>
+                        >
+                          <div className="font-semibold text-primary text-sm">
+                            {format(day, "EEE", { locale })}
+                          </div>
+                          <div className={`text-sm ${isToday(day) ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                            {format(day, "d MMM", { locale })}
+                          </div>
+                        </div>
                      ))}
                    </div>
 
@@ -460,9 +463,9 @@ export function SchedulePage() {
 
       {viewMode === "day" && (
         <Card className="border-slate-300">
-          <CardHeader>
-            <CardTitle>{format(currentDate, "EEEE, MMMM d, yyyy")}</CardTitle>
-          </CardHeader>
+           <CardHeader>
+             <CardTitle>{format(currentDate, "EEEE, MMMM d, yyyy", { locale })}</CardTitle>
+           </CardHeader>
           <CardContent>
             <div className="space-y-4">
              {getDayEvents(currentDate).length === 0 ? (

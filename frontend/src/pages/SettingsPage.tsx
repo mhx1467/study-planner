@@ -8,7 +8,7 @@ import { usePreferences } from "@/contexts/PreferencesContext"
 export function SettingsPage() {
   const { t } = useTranslation()
   const { language, setLanguage } = useLanguage()
-  const { preferences, setTaskViewMode, setScheduleHoursScheme } = usePreferences()
+  const { preferences, setLanguage: setPreferenceLanguage, setTaskViewMode, setScheduleHoursScheme } = usePreferences()
 
   const languages = [
     { code: 'pl' as const, label: 'Polski' },
@@ -24,6 +24,11 @@ export function SettingsPage() {
     { code: 'business' as const, label: t('pages.schedule.business_hours') },
     { code: 'all' as const, label: t('pages.schedule.show_all_hours') },
   ]
+
+  const handleLanguageChange = (lang: 'pl' | 'en') => {
+    setLanguage(lang)
+    setPreferenceLanguage(lang)
+  }
 
   return (
     <div className="flex-1 overflow-auto">
@@ -48,19 +53,19 @@ export function SettingsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-3">
-                {languages.map((lang) => (
-                  <Button
-                    key={lang.code}
-                    onClick={() => setLanguage(lang.code)}
-                    variant={language === lang.code ? 'default' : 'outline'}
-                    className="transition-all"
-                  >
-                    {lang.label}
-                    {language === lang.code && <span className="ml-2">✓</span>}
-                  </Button>
-                ))}
-              </div>
+               <div className="flex flex-wrap gap-3">
+                 {languages.map((lang) => (
+                   <Button
+                     key={lang.code}
+                     onClick={() => handleLanguageChange(lang.code)}
+                     variant={language === lang.code ? 'default' : 'outline'}
+                     className="transition-all"
+                   >
+                     {lang.label}
+                     {language === lang.code && <span className="ml-2">✓</span>}
+                   </Button>
+                 ))}
+               </div>
             </CardContent>
           </Card>
 
