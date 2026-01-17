@@ -25,10 +25,8 @@ services:
       resources:
         limits:
           cpus: '0.8'
-          memory: 256M
         reservations:
           cpus: '0.5'
-          memory: 128M
 
   backend:
     image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-study-planner}/backend:${IMAGE_TAG:-latest}
@@ -48,10 +46,8 @@ services:
       resources:
         limits:
           cpus: '0.6'
-          memory: 256M
         reservations:
           cpus: '0.3'
-          memory: 128M
 
   frontend:
     image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-study-planner}/frontend:${IMAGE_TAG:-latest}
@@ -67,10 +63,8 @@ services:
       resources:
         limits:
           cpus: '1'
-          memory: 256M
         reservations:
           cpus: '0.5'
-          memory: 128M
 
 volumes:
   postgres_data:
