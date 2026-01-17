@@ -1,7 +1,8 @@
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ToggleSwitch } from "@/components/ui/toggle-switch"
 import { AlertCircle, Calendar, Clock, Wand2 } from "lucide-react"
 import { format, startOfWeek, addDays, isToday, isSameDay, parseISO } from "date-fns"
 import { pl } from "date-fns/locale"
@@ -9,6 +10,7 @@ import { useSchedule, useGenerateSchedule, useSubjects } from "@/hooks/useApi"
 import { GenerateScheduleDialog } from "@/components/GenerateScheduleDialog"
 import type { GenerateScheduleParams } from "@/components/GenerateScheduleDialog"
 import { useTranslation } from "@/hooks/useTranslation"
+import { usePreferences } from "@/contexts/PreferencesContext"
 
 interface ScheduleEvent {
   id: number
@@ -22,16 +24,45 @@ interface ScheduleEvent {
 }
 
 export function SchedulePage() {
-    const [currentDate, setCurrentDate] = useState(new Date())
-    const [viewMode, setViewMode] = useState<"day" | "week">("week")
-    const [error, setError] = useState("")
-    const [showGenerateDialog, setShowGenerateDialog] = useState(false)
-    const [openPopoverId, setOpenPopoverId] = useState<number | string | null>(null)
-    const { t } = useTranslation()
-    
-    const { data: events = [], isLoading, refetch } = useSchedule(currentDate)
-    const generateSchedule = useGenerateSchedule()
-    const { data: subjects = [] } = useSubjects()
+     const [currentDate, setCurrentDate] = useState(new Date())
+     const [viewMode, setViewMode] = useState<"day" | "week">("week")
+     const [error, setError] = useState("")
+     const [showGenerateDialog, setShowGenerateDialog] = useState(false)
+     const [openPopoverId, setOpenPopoverId] = useState<number | string | null>(null)
+     const scrollContainerRef = useRef<HTMLDivElement>(null)
+     const { t } = useTranslation()
+     const { preferences, setScheduleHoursScheme } = usePreferences()
+     
+     const showAllHours = preferences.scheduleHoursScheme === 'all'
+     const handleToggleHours = (value: boolean) => {
+       setScheduleHoursScheme(value ? 'all' : 'business')
+     }
+     
+     const { data: events = [], isLoading, refetch } = useSchedule(currentDate)
+     const generateSchedule = useGenerateSchedule()
+     const { data: subjects = [] } = useSubjects()
+
+     // Constants for layout
+     const HOUR_HEIGHT = 120 // Reduced from 120 to 60 for more compact view
+     const START_HOUR = 6   // Start at 6 AM
+     const END_HOUR = 22    // End at 10 PM (22:00)
+     const VISIBLE_HOURS = showAllHours ? 24 : (END_HOUR - START_HOUR) // Show either all 24 hours or just business hours
+     const TOTAL_DAY_HEIGHT = VISIBLE_HOURS * HOUR_HEIGHT
+
+     // Scroll to current time on mount and when showAllHours changes
+     useEffect(() => {
+       if (scrollContainerRef.current && viewMode === "week") {
+         const now = new Date()
+         const currentHour = now.getHours()
+         
+         // Only auto-scroll if current hour is visible
+         if (showAllHours || (currentHour >= START_HOUR && currentHour < END_HOUR)) {
+           const hoursFromStart = showAllHours ? currentHour : (currentHour - START_HOUR)
+           const scrollTop = hoursFromStart * HOUR_HEIGHT - 150 // Scroll to show current time near top
+           scrollContainerRef.current.scrollTop = Math.max(0, scrollTop)
+         }
+       }
+     }, [viewMode, showAllHours, HOUR_HEIGHT])
 
     const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
     const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
@@ -51,24 +82,18 @@ export function SchedulePage() {
      return format(parseISO(isoString), "HH:mm")
    }
 
-     const getDayEvents = (date: Date): ScheduleEvent[] => {
-       return events.filter((e: ScheduleEvent) => isSameDay(getDateFromISO(e.start_time), date))
-     }
-
-      // Constants for layout
-      const HOUR_HEIGHT = 120 // Fixed height per hour
-      const TOTAL_DAY_HEIGHT = 24 * HOUR_HEIGHT // 24 hours * HOUR_HEIGHT per hour
-      
-      // Duration buckets: 0, 15, 30, 45, 60 minutes
+      const getDayEvents = (date: Date): ScheduleEvent[] => {
+        return events.filter((e: ScheduleEvent) => isSameDay(getDateFromISO(e.start_time), date))
+      }
       const DURATION_BUCKETS = [0, 15, 30, 45, 60]
       const BUCKET_HEIGHTS: { [key: number]: number } = {
-        0: 24,    // Minimal height for very short events
-        15: 30,   // Quarter hour
-        30: 60,   // Half hour
-        45: 90,   // Three quarter hour
-        60: 120,  // Full hour (same as HOUR_HEIGHT)
+        0: 0,
+        15: HOUR_HEIGHT * (15 / 60),  
+        30: HOUR_HEIGHT * (30 / 60),  
+        45: HOUR_HEIGHT * (45 / 60),  
+        60: HOUR_HEIGHT,        
       }
-
+        
       // Helper function to bucket duration to nearest valid duration
       // For durations > 60, returns array of buckets that sum to fit the duration
       const bucketDuration = (durationMinutes: number): number[] => {
@@ -132,7 +157,7 @@ export function SchedulePage() {
         return buckets
       }
       
-      // Helper function to get total height for a bucketed duration array
+       // Helper function to get total height for a bucketed duration array
       const getHeightForDuration = (durationMinutes: number): number => {
         const bucketedDurations = bucketDuration(durationMinutes)
         return bucketedDurations.reduce((sum, bucket) => sum + (BUCKET_HEIGHTS[bucket] || BUCKET_HEIGHTS[60]), 0)
@@ -145,7 +170,7 @@ export function SchedulePage() {
         return TOTAL_DAY_HEIGHT
       }
 
-   const handleGenerateSchedule = async (params: GenerateScheduleParams) => {
+    const handleGenerateSchedule = async (params: GenerateScheduleParams) => {
      try {
        setError("")
        setShowGenerateDialog(false)
@@ -239,9 +264,17 @@ export function SchedulePage() {
          </CardContent>
        </Card>
 
-       {viewMode === "week" && (
-         <Card className="border-slate-300">
-            <div className="flex border-b border-slate-300">
+         {viewMode === "week" && (
+           <Card className="border-slate-300">
+             <CardContent className="pt-6 pb-4">
+                <ToggleSwitch
+                  checked={showAllHours}
+                  onCheckedChange={handleToggleHours}
+                  labelLeft={t("pages.schedule.business_hours")}
+                  labelRight={t("pages.schedule.show_all_hours")}
+                />
+            </CardContent>
+             <div className="flex border-b border-slate-300">
               <div className="w-16 bg-muted/50 border-r border-slate-300 p-3 flex items-center justify-center flex-shrink-0">
                 <span className="text-xs font-semibold text-foreground">{t("pages.schedule.hour")}</span>
               </div>
@@ -261,54 +294,72 @@ export function SchedulePage() {
                    </div>
                  </div>
                ))}
+              </div>
              </div>
-           </div>
 
-             <div className="flex">
-               <div className="w-16 bg-muted/50 border-r border-slate-300 flex-shrink-0" style={{ height: `${getMaxDayHeight()}px` }}>
-                 {Array.from({ length: 24 }, (_, i) => (
-                   <div
-                     key={i}
-                     className="border-b border-slate-300 flex items-center justify-end pr-2"
-                     style={{ height: `${HOUR_HEIGHT}px` }}
-                   >
-                     <span className="text-xs font-medium text-muted-foreground">
-                       {`${i.toString().padStart(2, "0")}:00`}
-                     </span>
-                   </div>
-                 ))}
-               </div>
-
-               <div className="flex flex-1">
-                {weekDays.map((day, dayIdx) => (
-                  <div
-                    key={dayIdx}
-                    className="flex-1 border-l border-slate-300 relative"
-                    style={{ height: `${getMaxDayHeight()}px` }}
-                  >
-                    {Array.from({ length: 24 }, (_, i) => (
+              <div className="flex overflow-hidden" style={{ height: `${TOTAL_DAY_HEIGHT + 50}px` }}>
+                <div className="w-16 bg-muted/50 border-r border-slate-300 flex-shrink-0 overflow-y-auto" style={{ height: `${TOTAL_DAY_HEIGHT}px` }}>
+                  {Array.from({ length: VISIBLE_HOURS }, (_, i) => {
+                    const hour = showAllHours ? i : (START_HOUR + i)
+                    return (
                       <div
                         key={i}
-                        className="absolute w-full border-b border-slate-300"
-                        style={{
-                          top: `${i * HOUR_HEIGHT}px`,
-                          height: `${HOUR_HEIGHT}px`,
-                        }}
-                      />
-                    ))}
+                        className="border-b border-slate-300 flex items-center justify-end pr-2"
+                        style={{ height: `${HOUR_HEIGHT}px` }}
+                      >
+                        <span className="text-xs font-medium text-muted-foreground">
+                          {`${hour.toString().padStart(2, "0")}:00`}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
 
-                    {getDayEvents(day).map((event) => {
-                      const startDate = parseISO(event.start_time)
-                      const endDate = parseISO(event.end_time)
-                      const durationMinutes = Math.round((endDate.getTime() - startDate.getTime()) / 60000)
+                <div className="flex-1 border-l border-slate-300 overflow-x-auto overflow-y-auto" ref={scrollContainerRef}>
+                 <div className="flex min-w-min">
+                 {weekDays.map((day, dayIdx) => (
+                   <div
+                     key={dayIdx}
+                     className="flex-1 border-l border-slate-300 relative min-w-[150px]"
+                     style={{ height: `${getMaxDayHeight()}px` }}
+                   >
+                     {Array.from({ length: VISIBLE_HOURS }, (_, i) => {
+                       return (
+                         <div
+                           key={i}
+                           className="absolute w-full border-b border-slate-300"
+                           style={{
+                             top: `${i * HOUR_HEIGHT}px`,
+                             height: `${HOUR_HEIGHT}px`,
+                             left: 0,
+                             right: 0,
+                           }}
+                         />
+                       )
+                     })}
 
-                      const startHour = startDate.getHours()
-                      const startMinutes = startDate.getMinutes()
-                      const pixelsPerMinute = HOUR_HEIGHT / 60
-                      const topPixels = (startHour * HOUR_HEIGHT) + (startMinutes * pixelsPerMinute)
-                      
-                      // Use bucketed height instead of exact duration
-                      const blockHeight = getHeightForDuration(durationMinutes)
+                      {getDayEvents(day).map((event) => {
+                        const startDate = parseISO(event.start_time)
+                        const endDate = parseISO(event.end_time)
+                        const durationMinutes = Math.round((endDate.getTime() - startDate.getTime()) / 60000)
+
+                        const startHour = startDate.getHours()
+                        const startMinutes = startDate.getMinutes()
+                        const pixelsPerMinute = HOUR_HEIGHT / 60
+                        
+                        // Skip rendering if event is outside visible hours
+                        if (!showAllHours && (startHour < START_HOUR || startHour >= END_HOUR)) {
+                          return null
+                        }
+                        
+                        // Calculate top position based on current view mode
+                        // In all hours view: position from midnight
+                        // In business hours view: position from START_HOUR (6 AM)
+                        const hoursFromStart = showAllHours ? startHour : (startHour - START_HOUR)
+                        const topPixels = (hoursFromStart * HOUR_HEIGHT) + (startMinutes * pixelsPerMinute)
+                       
+                       // Use bucketed height instead of exact duration
+                       const blockHeight = getHeightForDuration(durationMinutes)
 
                       // Check if any event starts exactly when this event ends
                       const hasEventAfter = getDayEvents(day).some(
@@ -382,11 +433,12 @@ export function SchedulePage() {
                            </PopoverContent>
                          </Popover>
                        )
-                    })}
-                  </div>
-                ))}
+                     })}
+                   </div>
+                 ))}
+                 </div>
+                </div>
               </div>
-            </div>
 
              {events.length === 0 && (
                <CardContent className="text-center py-12">

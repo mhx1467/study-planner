@@ -1,14 +1,17 @@
 import React, { createContext, useContext, useState } from 'react'
 
 export type TaskViewMode = 'list' | 'kanban'
+export type ScheduleHoursScheme = 'business' | 'all'
 
 export interface Preferences {
   taskViewMode: TaskViewMode
+  scheduleHoursScheme: ScheduleHoursScheme
 }
 
 interface PreferencesContextType {
   preferences: Preferences
   setTaskViewMode: (viewMode: TaskViewMode) => void
+  setScheduleHoursScheme: (scheme: ScheduleHoursScheme) => void
 }
 
 const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined)
@@ -17,6 +20,7 @@ const PREFERENCES_STORAGE_KEY = 'app_preferences'
 
 const DEFAULT_PREFERENCES: Preferences = {
   taskViewMode: 'list',
+  scheduleHoursScheme: 'business',
 }
 
 function loadPreferences(): Preferences {
@@ -30,6 +34,7 @@ function loadPreferences(): Preferences {
       const parsed = JSON.parse(stored)
       return {
         taskViewMode: isValidTaskViewMode(parsed.taskViewMode) ? parsed.taskViewMode : DEFAULT_PREFERENCES.taskViewMode,
+        scheduleHoursScheme: isValidScheduleHoursScheme(parsed.scheduleHoursScheme) ? parsed.scheduleHoursScheme : DEFAULT_PREFERENCES.scheduleHoursScheme,
       }
     }
   } catch {
@@ -41,6 +46,10 @@ function loadPreferences(): Preferences {
 
 function isValidTaskViewMode(value: unknown): value is TaskViewMode {
   return value === 'list' || value === 'kanban'
+}
+
+function isValidScheduleHoursScheme(value: unknown): value is ScheduleHoursScheme {
+  return value === 'business' || value === 'all'
 }
 
 function savePreferences(preferences: Preferences): void {
@@ -64,8 +73,14 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     savePreferences(newPreferences)
   }
 
+  const setScheduleHoursScheme = (scheme: ScheduleHoursScheme) => {
+    const newPreferences = { ...preferences, scheduleHoursScheme: scheme }
+    setPreferencesState(newPreferences)
+    savePreferences(newPreferences)
+  }
+
   return (
-    <PreferencesContext.Provider value={{ preferences, setTaskViewMode }}>
+    <PreferencesContext.Provider value={{ preferences, setTaskViewMode, setScheduleHoursScheme }}>
       {children}
     </PreferencesContext.Provider>
   )
