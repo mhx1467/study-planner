@@ -7,6 +7,7 @@ from app.api import auth, subjects, tasks, schedule
 from app.services import statistics
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
+import os
 
 # NOTE: Tables are now created by Alembic migrations
 # Do NOT auto-create tables here anymore
@@ -15,9 +16,25 @@ app = FastAPI(
     title="Study Planner API",
 )
 
+# Configure CORS based on environment
+environment = os.getenv("ENVIRONMENT", "development")
+if environment == "production":
+    # In production, allow requests from the frontend
+    allowed_origins = [
+        "http://localhost:31321",
+        os.getenv("FRONTEND_URL", "http://localhost:31321"),
+    ]
+else:
+    # In development, allow localhost with different ports
+    allowed_origins = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:31321",
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"], 
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
