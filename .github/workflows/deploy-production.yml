@@ -144,11 +144,29 @@ jobs:
           # Pull latest images
           docker compose -f docker-compose.prod.yml pull
           
+          # Start database first
+          docker compose -f docker-compose.prod.yml up -d postgres
+          
+          # Wait for database to be healthy
+          echo "Waiting for database to be ready..."
+          for i in {1..30}; do
+            if docker compose -f docker-compose.prod.yml exec -T postgres pg_isready -U ${POSTGRES_USER:-postgres} > /dev/null 2>&1; then
+              echo "Database is ready"
+              break
+            fi
+            echo "Waiting for database... ($i/30)"
+            sleep 1
+          done
+          
           # Run migrations
           docker compose -f docker-compose.prod.yml run --rm backend alembic upgrade head
           
-          # Start services
+          # Start all services
           docker compose -f docker-compose.prod.yml up -d
+          
+          # Check that all containers are running
+          echo "Checking container status..."
+          docker compose -f docker-compose.prod.yml ps
           
           # Wait for services to be healthy
           sleep 10
@@ -165,6 +183,9 @@ jobs:
             docker compose -f docker-compose.prod.yml logs frontend
             exit 1
           fi
+          
+          # Prune unused images
+          docker image prune -a -f
           
           echo "Deployment successful"
           DEPLOY_EOF
