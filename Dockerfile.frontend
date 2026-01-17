@@ -21,8 +21,6 @@ COPY nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /var/log/nginx /var/run/nginx && \
     chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/log/nginx /var/run/nginx
 
-USER nginx
-
 EXPOSE 31321
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
