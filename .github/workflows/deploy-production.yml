@@ -144,43 +144,19 @@ jobs:
           # Pull latest images
           docker compose -f docker-compose.prod.yml pull
           
-          # Start database first
-          docker compose -f docker-compose.prod.yml up -d postgres
-          
-          # Wait for database to be healthy using sleep and retries
-          echo "Waiting for database to be ready..."
-          READY=false
-          for i in {1..30}; do
-            sleep 2
-            if docker compose -f docker-compose.prod.yml ps postgres | grep -q "healthy\|running"; then
-              echo "Database container is running"
-              READY=true
-              break
-            fi
-            echo "Waiting for database... ($i/30)"
-          done
-          
-          if [ "$READY" = false ]; then
-            echo "Database failed to start within 60 seconds"
-            docker compose -f docker-compose.prod.yml logs postgres
-            exit 1
-          fi
-          
-          # Give database extra time to accept connections
-          sleep 5
-          
-          # Start all services
-          echo "Starting all services..."
+          # Start all services (docker compose will wait for health checks)
+          echo "Starting services..."
           docker compose -f docker-compose.prod.yml up -d
           
-          # Wait a moment for containers to start
+          # Wait for all services to be healthy
+          echo "Waiting for services to be healthy..."
           sleep 5
           
-          # Check that all containers are running
-          echo "Checking container status..."
+          # Check service status
+          echo "Checking service status..."
           docker compose -f docker-compose.prod.yml ps
           
-          # Run migrations after services are up
+          # Run migrations (backend should be ready now)
           echo "Running database migrations..."
           timeout 60 docker compose -f docker-compose.prod.yml exec -T backend alembic upgrade head || echo "Migrations completed or skipped"
           
