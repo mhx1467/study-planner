@@ -28,9 +28,9 @@ export function SchedulePage() {
      const [viewMode, setViewMode] = useState<"day" | "week">("week")
      const [error, setError] = useState("")
      const [showGenerateDialog, setShowGenerateDialog] = useState(false)
-     const [openPopoverId, setOpenPopoverId] = useState<number | string | null>(null)
-     const scrollContainerRef = useRef<HTMLDivElement>(null)
-     const { t } = useTranslation()
+      const [openPopoverId, setOpenPopoverId] = useState<number | string | null>(null)
+      const scrollContainerRef = useRef<HTMLDivElement>(null)
+      const { t } = useTranslation()
      const { preferences, setScheduleHoursScheme } = usePreferences()
      
      const showAllHours = preferences.scheduleHoursScheme === 'all'
@@ -49,20 +49,20 @@ export function SchedulePage() {
      const VISIBLE_HOURS = showAllHours ? 24 : (END_HOUR - START_HOUR) // Show either all 24 hours or just business hours
      const TOTAL_DAY_HEIGHT = VISIBLE_HOURS * HOUR_HEIGHT
 
-     // Scroll to current time on mount and when showAllHours changes
-     useEffect(() => {
-       if (scrollContainerRef.current && viewMode === "week") {
-         const now = new Date()
-         const currentHour = now.getHours()
-         
-         // Only auto-scroll if current hour is visible
-         if (showAllHours || (currentHour >= START_HOUR && currentHour < END_HOUR)) {
-           const hoursFromStart = showAllHours ? currentHour : (currentHour - START_HOUR)
-           const scrollTop = hoursFromStart * HOUR_HEIGHT - 150 // Scroll to show current time near top
-           scrollContainerRef.current.scrollTop = Math.max(0, scrollTop)
-         }
-       }
-     }, [viewMode, showAllHours, HOUR_HEIGHT])
+      // Scroll to current time on mount and when showAllHours changes
+      useEffect(() => {
+        if (scrollContainerRef.current && viewMode === "week") {
+          const now = new Date()
+          const currentHour = now.getHours()
+          
+          // Only auto-scroll if current hour is visible
+          if (showAllHours || (currentHour >= START_HOUR && currentHour < END_HOUR)) {
+            const hoursFromStart = showAllHours ? currentHour : (currentHour - START_HOUR)
+            const scrollTop = hoursFromStart * HOUR_HEIGHT - 150 // Scroll to show current time near top
+            scrollContainerRef.current.scrollTop = Math.max(0, scrollTop)
+          }
+        }
+      }, [viewMode, showAllHours, HOUR_HEIGHT])
 
     const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
     const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
@@ -273,70 +273,76 @@ export function SchedulePage() {
                   labelLeft={t("pages.schedule.business_hours")}
                   labelRight={t("pages.schedule.show_all_hours")}
                 />
-            </CardContent>
-             <div className="flex border-b border-slate-300">
-              <div className="w-16 bg-muted/50 border-r border-slate-300 p-3 flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-semibold text-foreground">{t("pages.schedule.hour")}</span>
-              </div>
-             <div className="flex flex-1">
-               {weekDays.map((day, idx) => (
-                 <div
-                   key={idx}
-                   className={`flex-1 p-3 text-center border-l border-slate-300 ${
-                     isToday(day) ? "bg-primary/5" : "bg-muted/30"
-                   }`}
-                 >
-                   <div className="font-semibold text-primary text-sm">
-                     {format(day, "EEE")}
-                   </div>
-                   <div className={`text-sm ${isToday(day) ? "text-primary font-bold" : "text-muted-foreground"}`}>
-                     {format(day, "d MMM", { locale: pl })}
-                   </div>
-                 </div>
-               ))}
-              </div>
-             </div>
-
-              <div className="flex overflow-hidden" style={{ height: `${TOTAL_DAY_HEIGHT + 50}px` }}>
-                <div className="w-16 bg-muted/50 border-r border-slate-300 flex-shrink-0 overflow-y-auto" style={{ height: `${TOTAL_DAY_HEIGHT}px` }}>
-                  {Array.from({ length: VISIBLE_HOURS }, (_, i) => {
-                    const hour = showAllHours ? i : (START_HOUR + i)
-                    return (
-                      <div
-                        key={i}
-                        className="border-b border-slate-300 flex items-center justify-end pr-2"
-                        style={{ height: `${HOUR_HEIGHT}px` }}
-                      >
-                        <span className="text-xs font-medium text-muted-foreground">
-                          {`${hour.toString().padStart(2, "0")}:00`}
-                        </span>
-                      </div>
-                    )
-                  })}
+             </CardContent>
+              <div className="flex overflow-hidden" style={{ height: `${TOTAL_DAY_HEIGHT + 100}px` }}>
+                {/* Fixed time column */}
+                <div className="w-16 bg-muted/50 border-slate-300 flex flex-col flex-shrink-0">
+                  {/* Header cell for time column */}
+                  <div className="border-b border-slate-300 p-3 flex items-center justify-center flex-shrink-0 h-[65px]">
+                    <span className="text-xs font-semibold text-foreground">{t("pages.schedule.hour")}</span>
+                  </div>
+                  {/* Time labels */}
+                  <div className="overflow-y-auto" style={{ height: `${TOTAL_DAY_HEIGHT}px` }}>
+                    {Array.from({ length: VISIBLE_HOURS }, (_, i) => {
+                      const hour = showAllHours ? i : (START_HOUR + i)
+                      return (
+                        <div
+                          key={i}
+                          className="border-b border-slate-300 flex items-center justify-end pr-2"
+                          style={{ height: `${HOUR_HEIGHT}px` }}
+                        >
+                          <span className="text-xs font-medium text-muted-foreground">
+                            {`${hour.toString().padStart(2, "0")}:00`}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
 
-                <div className="flex-1 border-l border-slate-300 overflow-x-auto overflow-y-auto" ref={scrollContainerRef}>
-                 <div className="flex min-w-min">
-                 {weekDays.map((day, dayIdx) => (
-                   <div
-                     key={dayIdx}
-                     className="flex-1 border-l border-slate-300 relative min-w-[150px]"
-                     style={{ height: `${getMaxDayHeight()}px` }}
-                   >
-                     {Array.from({ length: VISIBLE_HOURS }, (_, i) => {
-                       return (
-                         <div
-                           key={i}
-                           className="absolute w-full border-b border-slate-300"
-                           style={{
-                             top: `${i * HOUR_HEIGHT}px`,
-                             height: `${HOUR_HEIGHT}px`,
-                             left: 0,
-                             right: 0,
-                           }}
-                         />
-                       )
-                     })}
+                 {/* Scrollable area containing header and content */}
+                 <div className="flex-1 border-l border-slate-300 overflow-x-auto overflow-y-auto" ref={scrollContainerRef}>
+                   {/* Week header with day names - scrolls horizontally */}
+                   <div className="flex border-b border-slate-300 flex-shrink-0 bg-white sticky top-0 z-10 w-fit xl:w-full">
+                     {weekDays.map((day, idx) => (
+                       <div
+                         key={idx}
+                         className={`flex-1 p-3 text-center border-l border-slate-300 min-w-[150px] ${
+                           isToday(day) ? "bg-primary/5" : "bg-muted/30"
+                         }`}
+                       >
+                         <div className="font-semibold text-primary text-sm">
+                           {format(day, "EEE")}
+                         </div>
+                         <div className={`text-sm ${isToday(day) ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                           {format(day, "d MMM", { locale: pl })}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+
+                   {/* Calendar grid with events */}
+                   <div className="relative flex min-w-min" style={{ height: `${getMaxDayHeight()}px` }}>
+                     {/* Hour grid lines spanning all columns */}
+                     {Array.from({ length: VISIBLE_HOURS }, (_, i) => (
+                       <div
+                         key={`gridline-${i}`}
+                         className="absolute w-full border-b border-slate-300 pointer-events-none"
+                         style={{
+                           top: `${i * HOUR_HEIGHT}px`,
+                           height: `${HOUR_HEIGHT}px`,
+                           left: 0,
+                           right: 0,
+                         }}
+                       />
+                     ))}
+
+                     {/* Day columns with events */}
+                  {weekDays.map((day, dayIdx) => (
+                    <div
+                      key={dayIdx}
+                      className="flex-1 border-l border-slate-300 relative min-w-[150px]"
+                    >
 
                       {getDayEvents(day).map((event) => {
                         const startDate = parseISO(event.start_time)
@@ -434,9 +440,9 @@ export function SchedulePage() {
                          </Popover>
                        )
                      })}
-                   </div>
-                 ))}
-                 </div>
+                    </div>
+                  ))}
+                  </div>
                 </div>
               </div>
 
