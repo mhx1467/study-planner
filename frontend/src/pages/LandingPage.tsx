@@ -133,15 +133,12 @@ export function LandingPage() {
 
   return (
     <div className="w-full">
-      {/* Hero Section */}
       <section className="relative min-h-screen bg-gradient-to-b from-background via-primary/5 to-background overflow-hidden flex items-center">
-        {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl -z-10"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-secondary/10 to-transparent rounded-full blur-3xl -z-10"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left content */}
             <div className="space-y-8">
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-slate-300">
@@ -184,13 +181,11 @@ export function LandingPage() {
               </div>
             </div>
 
-            {/* Right illustration - Quiz Animation */}
             <QuizAnimation />
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
       <section id="features" className="bg-muted/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 space-y-4">
@@ -225,7 +220,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* How It Works Section */}
       <section id="how-it-works" className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 space-y-4">
@@ -238,7 +232,6 @@ export function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((step, idx) => (
               <div key={idx} className="relative">
-                {/* Connector line */}
                 {idx < steps.length - 1 && (
                   <div className="hidden lg:block absolute top-12 -right-4 w-8 h-0.5 bg-gradient-to-r from-primary to-transparent"></div>
                 )}
@@ -258,10 +251,8 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <section id="testimonials" className="py-20 bg-muted/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Testimonials Section Header */}
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl sm:text-5xl font-bold text-primary">Co mówią studenci</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -291,7 +282,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* FAQ Section */}
       <section id="faq" className="py-20 bg-background">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 space-y-4">
@@ -328,7 +318,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-primary/10 to-secondary/10 border-t border-b border-slate-300">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
           <div className="space-y-4">
@@ -355,7 +344,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-muted/50 border-t border-slate-300 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
@@ -390,21 +378,6 @@ export function LandingPage() {
                   </a>
                 </li>
               </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-300 pt-8 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
-            <p>© 2026 StudyPlanner. Wszystkie prawa zastrzeżone.</p>
-            <div className="flex gap-6 mt-4 sm:mt-0">
-              <a href="#twitter" className="hover:text-primary transition-colors">
-                Twitter
-              </a>
-              <a href="#github" className="hover:text-primary transition-colors">
-                GitHub
-              </a>
-              <a href="#discord" className="hover:text-primary transition-colors">
-                Discord
-              </a>
             </div>
           </div>
         </div>

@@ -18,12 +18,10 @@ export function Navigation() {
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
   const isLandingPage = location.pathname === "/"
 
-  // Don't show navigation on auth pages
   if (isAuthPage) {
     return null
   }
 
-  // Landing page navigation (unauthenticated)
   if (isLandingPage && !isAuthenticated) {
     return (
       <nav className="border-b border-slate-300 bg-white shadow-sm sticky top-0 z-50">
@@ -94,7 +92,6 @@ export function Navigation() {
     )
   }
 
-  // Authenticated navigation
   return (
     <nav className="border-b border-slate-300 bg-card bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
