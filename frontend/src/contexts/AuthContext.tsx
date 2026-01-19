@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react"
 import type { User, AuthResponse, LoginRequest, RegisterRequest } from "@/types"
 import { apiClient } from "@/services/api"
-
+import { useQueryClient } from "@tanstack/react-query"
 
 interface AuthContextType {
   user: User | null
@@ -19,6 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
 
   // Check if user is already logged in on mount
   useEffect(() => {
@@ -36,13 +37,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     initAuth()
-  }, [])
+  }, [queryClient])
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true)
     setError(null)
     try {
       const response: AuthResponse = await apiClient.login(credentials)
+      // Invalidate all queries to force refetch with new user's data
+      await queryClient.invalidateQueries()
       setUser(response.user)
     } catch (err: any) {
       const message = err.response?.data?.detail || "Login failed"
@@ -58,6 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null)
     try {
       const response: AuthResponse = await apiClient.register(data)
+      // Invalidate all queries to force refetch with new user's data
+      await queryClient.invalidateQueries()
       setUser(response.user)
     } catch (err: any) {
       const message = err.response?.data?.detail || "Registration failed"
@@ -71,6 +76,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     setIsLoading(true)
     try {
+      // Invalidate all queries immediately when logging out
+      await queryClient.invalidateQueries()
+      
       await apiClient.logout()
       setUser(null)
       setError(null)

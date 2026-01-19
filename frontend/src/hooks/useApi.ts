@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { api } from "@/services/api"
 
+export function useClearCache() {
+  const queryClient = useQueryClient()
+  return () => {
+    queryClient.clear()
+  }
+}
+
 export function useSubjects() {
   return useQuery({
     queryKey: ["subjects"],
