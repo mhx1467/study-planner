@@ -266,7 +266,7 @@ export function SubjectsPage() {
                 onClick={handleConfirmDelete}
                 disabled={deleteSubject.isPending}
               >
-                {deleteSubject.isPending ? t("buttons.saving") : t("buttons.delete")}
+                {deleteSubject.isPending ? t("buttons.save_subject") : t("buttons.delete_subject")}
               </Button>
             </DialogFooter>
           </DialogContent>

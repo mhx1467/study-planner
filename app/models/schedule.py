@@ -14,7 +14,7 @@ class Schedule(Base):
     end_time = Column(DateTime)
     task_id = Column(Integer, ForeignKey("tasks.id"), nullable=True)
     subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=True)
-    color = Column(String, default="blue")  # For UI display
+    color = Column(String, default="blue")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

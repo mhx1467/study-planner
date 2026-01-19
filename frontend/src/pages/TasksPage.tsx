@@ -20,12 +20,14 @@ import {
   BookMarked,
   LayoutGrid,
   List,
+  Download,
 } from "lucide-react"
-import { useCreateTask, useUpdateTask, useDeleteTask, useTasks, useSubjects } from "@/hooks/useApi"
+import { useCreateTask, useUpdateTask, useDeleteTask, useTasks, useSubjects, useExportTasksCSV } from "@/hooks/useApi"
 import { useToast } from "@/contexts/ToastContext"
 import { useTranslation } from "@/hooks/useTranslation"
 import { usePreferences } from "@/contexts/PreferencesContext"
 import { getDaysUntilDue } from "@/lib/dateUtils"
+import { exportTasksAsCSV } from "@/utils/export"
 
 interface Subject {
   id: number
@@ -54,6 +56,7 @@ export function TasksPage() {
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
   const deleteTask = useDeleteTask()
+  const exportTasks = useExportTasksCSV()
    const { showSuccess } = useToast()
    const { t, tf } = useTranslation()
    const { preferences } = usePreferences()
@@ -213,24 +216,34 @@ export function TasksPage() {
       setShowForm(true)
     }
 
-       const handleDelete = async (id: number) => {
-         setDeletingTaskId(id)
-         setShowDeleteDialog(true)
-       }
+    const handleDelete = async (id: number) => {
+      setDeletingTaskId(id)
+      setShowDeleteDialog(true)
+    }
 
-       const handleConfirmDelete = async () => {
-         if (deletingTaskId === null) return
-         try {
-           await deleteTask.mutateAsync(deletingTaskId)
-           showSuccess(t("pages.task_deleted_title"), t("pages.task_deleted_message"))
-           refetch()
-         } catch {
-           // error is already handled by the API interceptor with translations
-         } finally {
-           setShowDeleteDialog(false)
-           setDeletingTaskId(null)
-         }
-       }
+    const handleConfirmDelete = async () => {
+      if (deletingTaskId === null) return
+      try {
+        await deleteTask.mutateAsync(deletingTaskId)
+        showSuccess(t("pages.task_deleted_title"), t("pages.task_deleted_message"))
+        refetch()
+      } catch {
+        // error is already handled by the API interceptor with translations
+      } finally {
+        setShowDeleteDialog(false)
+        setDeletingTaskId(null)
+      }
+    }
+
+    const handleExportCSV = async () => {
+      try {
+        const csvBlob = await exportTasks.mutateAsync()
+        exportTasksAsCSV(csvBlob)
+        showSuccess(t("pages.export_success_title"), t("pages.export_success_message"))
+      } catch {
+        // error is already handled by the API interceptor with translations
+      }
+    }
 
     const handleCancel = () => {
       setFormData({
@@ -319,9 +332,9 @@ export function TasksPage() {
 
   // Kanban column data
   const kanbanColumns = [
-    { status: "todo", title: t("pages.tasks.kanban_status_todo"), color: "bg-slate-50 border-slate-200" },
-    { status: "in_progress", title: t("pages.tasks.kanban_status_in_progress"), color: "bg-blue-50 border-blue-200" },
-    { status: "done", title: t("pages.tasks.kanban_status_done"), color: "bg-green-50 border-green-200" },
+    { status: "todo", title: t("pages.kanban_status_todo"), color: "bg-slate-50 border-slate-200" },
+    { status: "in_progress", title: t("pages.kanban_status_in_progress"), color: "bg-blue-50 border-blue-200" },
+    { status: "done", title: t("pages.kanban_status_done"), color: "bg-green-50 border-green-200" },
   ]
 
   // Drag and drop handlers
@@ -403,24 +416,34 @@ export function TasksPage() {
            </Card>
          )}
 
-         <div className="mb-8 flex justify-between items-start">
-           <div>
-             <h1 className="text-4xl font-bold text-primary">
-               {t("pages.tasks")}
-             </h1>
-             <p className="text-muted-foreground mt-2 text-lg">
-               {t("pages.tasks_description")}
-             </p>
-           </div>
-           <div className="flex gap-2">
-             {!showForm && (
-               <Button onClick={() => setShowForm(true)} size="lg" className="gap-2">
-                 <Plus className="h-4 w-4" />
-                 {t("buttons.new_task")}
-               </Button>
-             )}
-           </div>
-         </div>
+          <div className="mb-8 flex justify-between items-start">
+            <div>
+              <h1 className="text-4xl font-bold text-primary">
+                {t("pages.tasks")}
+              </h1>
+              <p className="text-muted-foreground mt-2 text-lg">
+                {t("pages.tasks_description")}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleExportCSV} 
+                variant="outline" 
+                size="lg" 
+                className="gap-2"
+                disabled={exportTasks.isPending || tasks.length === 0}
+              >
+                <Download className="h-4 w-4" />
+                {exportTasks.isPending ? t("buttons.exporting") : t("buttons.export")}
+              </Button>
+              {!showForm && (
+                <Button onClick={() => setShowForm(true)} size="lg" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  {t("buttons.new_task")}
+                </Button>
+              )}
+            </div>
+          </div>
 
         {showForm && (
           <Card className="mb-8 border-slate-300">
@@ -670,7 +693,7 @@ export function TasksPage() {
                   onClick={handleConfirmDelete}
                   disabled={deleteTask.isPending}
                 >
-                  {deleteTask.isPending ? t("buttons.saving") : t("buttons.delete")}
+                  {deleteTask.isPending ? t("buttons.save_task") : t("buttons.delete_task")}
                 </Button>
               </DialogFooter>
             </DialogContent>

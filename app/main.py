@@ -3,8 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from app.database.base import Base
 from app.database.session import engine
-from app.api import auth, subjects, tasks, schedule
-from app.services import statistics
+from app.api import auth, subjects, tasks, schedule, statistics
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 import os

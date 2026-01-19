@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { api } from "@/services/api"
 
-// Subjects Hooks
 export function useSubjects() {
   return useQuery({
     queryKey: ["subjects"],
@@ -62,7 +61,6 @@ export function useDeleteSubject() {
   })
 }
 
-// Tasks Hooks
 export function useTasks(subject_id?: number) {
   return useQuery({
     queryKey: ["tasks", subject_id],
@@ -129,7 +127,6 @@ export function useUpdateTask() {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] })
       queryClient.invalidateQueries({ queryKey: ["tasks", id] })
-      // Invalidate all statistics queries regardless of period parameter
       queryClient.invalidateQueries({ queryKey: ["statistics"] })
     },
   })
@@ -148,7 +145,6 @@ export function useDeleteTask() {
   })
 }
 
-// Schedule Hooks
 export function useSchedule(date?: Date) {
   return useQuery({
     queryKey: ["schedule", date?.toISOString()],
@@ -210,7 +206,17 @@ export function useGenerateSchedule() {
   })
 }
 
-// Statistics Hooks
+export function useExportTasksCSV() {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await api.get("/tasks/csv", {
+        responseType: "blob",
+      })
+      return response.data
+    },
+  })
+}
+
 interface StatisticsData {
   totalTasks: number
   completedTasks: number

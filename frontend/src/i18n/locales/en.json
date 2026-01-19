@@ -53,7 +53,9 @@
     "updating": "Updating...",
     "saving": "Saving...",
     "new_subject": "New Subject",
-    "new_task": "New Task"
+    "new_task": "New Task",
+    "export": "Export",
+    "exporting": "Exporting..."
   },
   "navigation": {
     "how_it_works": "How It Works",
@@ -160,6 +162,8 @@
     "task_move_error": "Error moving task",
     "task_moved_to_todo": "Task moved to To Do list",
     "task_moved_to_in_progress": "Task moved to \"In Progress\"",
+    "export_success_title": "Export Successful",
+    "export_success_message": "Your tasks have been exported as CSV",
     "status_changed": "Status Changed",
     "status_changed_title": "Status Changed",
     "all_tasks": "All Tasks",

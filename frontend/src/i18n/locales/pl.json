@@ -53,7 +53,9 @@
     "updating": "Aktualizowanie...",
     "saving": "Zapisywanie...",
     "new_subject": "Nowy przedmiot",
-    "new_task": "Nowe zadanie"
+    "new_task": "Nowe zadanie",
+    "export": "Eksportuj",
+    "exporting": "Eksportowanie..."
   },
   "navigation": {
     "how_it_works": "Jak to działa",
@@ -160,6 +162,8 @@
     "task_move_error": "Błąd podczas przenoszenia zadania",
     "task_moved_to_todo": "Zadanie przeniesione na listę do zrobienia",
     "task_moved_to_in_progress": "Zadanie przeniesione do \"W trakcie\"",
+    "export_success_title": "Eksport zakończony",
+    "export_success_message": "Twoje zadania zostały wyeksportowane jako CSV",
     "status_changed": "Status zmieniony",
     "status_changed_title": "Status zmieniony",
     "all_tasks": "Wszystkie zadania",
